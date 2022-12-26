@@ -1,36 +1,48 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import React from 'react';
-import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress } from '@mui/material';
+import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress, Stack } from '@mui/material';
 
 import { SectionContent } from '../components';
-import { title } from 'process';
-import { styled } from '@mui/material/styles';
-import { linearProgressClasses } from '@mui/material/LinearProgress';
+import { Arced } from '../gauge/arced';
+import { Power } from '../gauge/power';
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  width: 300,
-  height: 10, 
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
-  },
-}));
 
-const TankStatus: FC = () => (
-  <SectionContent title='Demo Information' titleGutter>
-    <Card variant="outlined" sx={{ borderRadius: 5, margin: 2, display: 'inline-block' }} >
-      <CardContent >
-        <Typography color="textSecondary" gutterBottom variant="body2">
-          STATUS
-        </Typography>
-      <BorderLinearProgress variant="determinate" value={50} />
-      </CardContent>
-    </Card>
-  </SectionContent>
-);
+const TankStatus: FC = () => {
+  const [water, setWater] = useState(30);
+  const [waterSpeed, setWaterSpeed] = useState(30);
+  return (
+    <SectionContent title='Information' titleGutter>
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <Card variant="outlined" sx={{ borderRadius: 5, margin: 2 }} >
+          <CardContent >
+            <Typography color="textSecondary" variant="body2" >
+              STATUS
+            </Typography>
+            <div className="mt-8">
+              <Arced
+                value={water} />
+            </div>
+            <Typography color="textprimary" align='center' sx={{ marginTop: 2 }}>
+              {water} Liters
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card variant="outlined" sx={{ borderRadius: 5, margin: 2, display: 'inline-block' }} >
+          <CardContent >
+            <Typography color="textSecondary" variant="body2">
+              SPEED
+            </Typography>
+            <div className="mt-4">
+              <Power value={waterSpeed} />
+            </div>
+            <Typography color="textprimary" align='center' sx={{ marginTop: 2 }}>
+              {waterSpeed} l/m
+            </Typography>
+          </CardContent>
+        </Card>
+      </div>
+    </SectionContent>
+  );
+};
 
 export default TankStatus;

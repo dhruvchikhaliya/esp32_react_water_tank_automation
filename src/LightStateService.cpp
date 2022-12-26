@@ -22,7 +22,9 @@ LightStateService::LightStateService(AsyncWebServer* server,
     _mqttClient(mqttClient),
     _lightMqttSettingsService(lightMqttSettingsService) {
   // configure led to be output
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(R_LED_PIN, OUTPUT);
+  pinMode(G_LED_PIN, OUTPUT);
+  pinMode(B_LED_PIN, OUTPUT);
 
   // configure MQTT callback
   _mqttClient->onConnect(std::bind(&LightStateService::registerConfig, this));
@@ -40,7 +42,9 @@ void LightStateService::begin() {
 }
 
 void LightStateService::onConfigUpdated() {
-  digitalWrite(LED_PIN, _state.ledOn ? LED_ON : LED_OFF);
+  digitalWrite(R_LED_PIN, _state.ledOn ? LED_ON : LED_OFF);
+  digitalWrite(G_LED_PIN, _state.ledOn ? LED_ON : LED_OFF);
+  digitalWrite(B_LED_PIN, _state.ledOn ? LED_ON : LED_OFF);
 }
 
 void LightStateService::registerConfig() {

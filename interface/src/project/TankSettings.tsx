@@ -15,7 +15,7 @@ import Fab from '@mui/material/Fab/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
 import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, IconButton, Stack, Switch, TextField, ToggleButton, useTheme } from '@mui/material';
+import { Dialog, DialogActions, IconButton, Slider, Stack, Switch, TextField, ToggleButton, useTheme } from '@mui/material';
 import { index, PumpSetting, SetTime } from '../types/pumpsettings';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -37,7 +37,24 @@ interface TimePopUpProps {
   onSave: (value: SetTime) => void;
   onClose: () => void;
 }
-
+const marks = [
+  {
+    value: 0,
+    label: '0L',
+  },
+  {
+    value: 20,
+    label: '20L',
+  },
+  {
+    value: 37,
+    label: '37L',
+  },
+  {
+    value: 100,
+    label: '100L',
+  },
+];
 const ToggleSwitch = styled(Switch)(() => ({
   padding: 8,
   '& .MuiSwitch-track': {
@@ -60,7 +77,6 @@ const ToggleSwitch = styled(Switch)(() => ({
 }));
 
 const TankSettings: FC = () => {
-
   const [expanded, setExpanded] = React.useState<string | false>(false);
   const [swstatus, setSwstatus] = React.useState<PumpSetting[]>([]);
   const [timepopup, setTimepopup] = useState<boolean>(false);
@@ -95,7 +111,7 @@ const TankSettings: FC = () => {
   };
 
   const TimePopUp: FC = () => {
-    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(idx == ADD_NEW_TIMER ? 0 : swstatus[idx].hour).minute(idx == ADD_NEW_TIMER ? 0 : swstatus[idx].minute));
+    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(swstatus[idx]?.hour ?? 0).minute(swstatus[idx]?.minute ?? 0));
 
     return (
       <>
@@ -134,9 +150,9 @@ const TankSettings: FC = () => {
 
   const TimerCard: FC<index> = ({ i }) => {
     return (
-      <Card variant="outlined" sx={{ borderRadius: 5, margin: 2, display: 'inline-block' }} >
+      <Card variant="outlined" sx={{ borderRadius: 5, margin: 2, display: 'inline-block', width: 330 }} >
         <CardContent>
-          <div className='w-full text-right flex flex-row'>
+          <Stack direction="row" spacing={1} justifyContent="space-between">
             <Stack direction="row" alignItems={'baseline'} spacing={1}>
               <Typography variant="h3" component="div">
                 {`${('0' + ((swstatus[i].hour % 12) || 12)).slice(-2)}:${('0' + (swstatus[i].minute)).slice(-2)}`}
@@ -145,10 +161,8 @@ const TankSettings: FC = () => {
                 {swstatus[i].hour >= 12 ? 'p.m' : 'a.m'}
               </Typography>
             </Stack>
-
-            <Stack direction="column" alignItems="end" spacing={0} sx={{ ml: 9 }}>
+            <Stack direction="column" alignItems="end" spacing={0} >
               <ToggleSwitch
-                sx={{ right: 0 }}
                 checked={swstatus[i]?.status}
                 onChange={() => {
                   let newArr = [...swstatus];
@@ -169,9 +183,9 @@ const TankSettings: FC = () => {
                 </IconButton>
               </Stack>
             </Stack>
-          </div>
+          </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }} justifyContent="center">
             <ToggleButton
               color="primary"
               value="check"
@@ -260,10 +274,11 @@ const TankSettings: FC = () => {
             <Typography>Auto start scheduling</Typography>
           </AccordionSummary>
 
-          {swstatus.map((obj, i) =>
-            (<TimerCard i={i} />)
-          )}
-
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            {swstatus.map((obj, i) =>
+              (<TimerCard i={i} />)
+            )}
+          </div>
           <div className='w-full text-right'>
             <Button
               startIcon={<SaveIcon />}
@@ -295,6 +310,37 @@ const TankSettings: FC = () => {
             </Fab>
           </div>
         </Accordion>
+
+        <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel2-content"
+            id="panel2-header"
+          >
+            <Typography>Start and stop points</Typography>
+
+          </AccordionSummary><Slider
+            getAriaLabel={() => 'Temperature'}
+            orientation="vertical"
+            aria-valuetext={`${1}°C`}
+            defaultValue={[20, 37]}
+            valueLabelDisplay="auto"
+            marks={marks}
+          />
+
+          <div className='w-full text-right'>
+            <Button sx={{ margin: 1.5 }}
+              startIcon={<SaveIcon />}
+              // disabled={saving || noAdminConfigured()}
+              variant="contained"
+              color="primary"
+              type="submit"
+            // onClick={()=>setTimepopup(true)}
+            >Save</Button>
+          </div>
+        </Accordion>
+
+
       </SectionContent>
       <TimePopUp />
     </>
