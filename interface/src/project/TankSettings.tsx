@@ -1,6 +1,4 @@
 import { FC, useState } from 'react';
-
-
 import { SectionContent, ValidatedTextField } from '../components';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
@@ -16,19 +14,20 @@ import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
 import SaveIcon from '@mui/icons-material/Save';
 import { Dialog, DialogActions, IconButton, Slider, Stack, Switch, TextField, ToggleButton, useTheme } from '@mui/material';
-import { index, PumpSetting, SetTime } from '../types/pumpsettings';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { relative } from 'path';
+import { AutoStartTiming, AutoStartTimingList, index, PumpTimingSetting, SetTime } from '../types';
+import { useRest } from '../utils';
+import * as PumpApi from "../api/pump";
 
 const MAX_AUTOSTART = 5;
 const ADD_NEW_TIMER = 100;
 var idx = ADD_NEW_TIMER;
-var deafultTime: PumpSetting = { hour: 0, minute: 0, sunday: false, monday: false, tuesday: false, wednesday: false, thursday: false, friday: false, saturday: false, status: false };
+var deafultTime: PumpTimingSetting = { hour: 0, minute: 0, sunday: false, monday: false, tuesday: false, wednesday: false, thursday: false, friday: false, saturday: false, status: false };
 
 
 interface TimePopUpProps {
@@ -37,24 +36,15 @@ interface TimePopUpProps {
   onSave: (value: SetTime) => void;
   onClose: () => void;
 }
-const marks = [
-  {
-    value: 0,
-    label: '0L',
-  },
-  {
-    value: 20,
-    label: '20L',
-  },
-  {
-    value: 37,
-    label: '37L',
-  },
-  {
-    value: 100,
-    label: '100L',
-  },
-];
+
+function valuetext(value: number) {
+  return `${value}°C`;
+}
+const marks = Array.from({ length: 11 }, (_, i) => ({
+  value: (i * 10),
+  label: `${i * 200}L`,
+}));
+
 const ToggleSwitch = styled(Switch)(() => ({
   padding: 8,
   '& .MuiSwitch-track': {
@@ -78,8 +68,11 @@ const ToggleSwitch = styled(Switch)(() => ({
 
 const TankSettings: FC = () => {
   const [expanded, setExpanded] = React.useState<string | false>(false);
-  const [swstatus, setSwstatus] = React.useState<PumpSetting[]>([]);
+  const [timer, setTimer] = React.useState<PumpTimingSetting[]>([]);
   const [timepopup, setTimepopup] = useState<boolean>(false);
+  const {
+    loadData, saving, data, setData, saveData, errorMessage
+  } = useRest<AutoStartTimingList>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -88,7 +81,7 @@ const TankSettings: FC = () => {
 
   const openTimerPopUp = (index: number) => {
     idx = index;
-    if (index == ADD_NEW_TIMER && swstatus.length >= MAX_AUTOSTART) {
+    if (index == ADD_NEW_TIMER && timer.length >= MAX_AUTOSTART) {
       return;
     }
     setTimepopup(true);
@@ -99,19 +92,19 @@ const TankSettings: FC = () => {
   };
 
   const saveTimer = (value: SetTime) => {
-    if (idx < swstatus.length) {
-      let newArr = [...swstatus];
+    if (idx < timer.length) {
+      let newArr = [...timer];
       newArr[idx].hour = value.hour;
       newArr[idx].minute = value.minute;
-      setSwstatus(newArr);
+      setTimer(newArr);
     } else {
-      setSwstatus(swstatus => [...swstatus, { hour: value.hour, minute: value.minute, sunday: false, monday: false, tuesday: false, wednesday: false, thursday: false, friday: false, saturday: false, status: false }]);
+      setTimer(timer => [...timer, { hour: value.hour, minute: value.minute, sunday: false, monday: false, tuesday: false, wednesday: false, thursday: false, friday: false, saturday: false, status: false }]);
     }
     setTimepopup(false);
   };
 
   const TimePopUp: FC = () => {
-    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(swstatus[idx]?.hour ?? 0).minute(swstatus[idx]?.minute ?? 0));
+    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(timer[idx]?.hour ?? 0).minute(timer[idx]?.minute ?? 0));
 
     return (
       <>
@@ -155,19 +148,19 @@ const TankSettings: FC = () => {
           <Stack direction="row" spacing={1} justifyContent="space-between">
             <Stack direction="row" alignItems={'baseline'} spacing={1}>
               <Typography variant="h3" component="div">
-                {`${('0' + ((swstatus[i].hour % 12) || 12)).slice(-2)}:${('0' + (swstatus[i].minute)).slice(-2)}`}
+                {`${('0' + ((timer[i].hour % 12) || 12)).slice(-2)}:${('0' + (timer[i].minute)).slice(-2)}`}
               </Typography>
               <Typography color="text.secondary">
-                {swstatus[i].hour >= 12 ? 'p.m' : 'a.m'}
+                {timer[i].hour >= 12 ? 'p.m' : 'a.m'}
               </Typography>
             </Stack>
             <Stack direction="column" alignItems="end" spacing={0} >
               <ToggleSwitch
-                checked={swstatus[i]?.status}
+                checked={timer[i]?.status}
                 onChange={() => {
-                  let newArr = [...swstatus];
+                  let newArr = [...timer];
                   newArr[i].status = !newArr[i].status;
-                  setSwstatus(newArr);
+                  setTimer(newArr);
                 }}
               />
               <Stack direction="row" alignItems={'baseline'} spacing={1}>
@@ -175,9 +168,9 @@ const TankSettings: FC = () => {
                   <EditIcon />
                 </IconButton>
                 <IconButton size="small" aria-label="Edit" onClick={() => {
-                  let newArr = [...swstatus];
+                  let newArr = [...timer];
                   newArr.splice(i, 1);
-                  setSwstatus(newArr);
+                  setTimer(newArr);
                 }}>
                   <DeleteIcon />
                 </IconButton>
@@ -190,71 +183,71 @@ const TankSettings: FC = () => {
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].sunday = !newArr[i].sunday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.sunday}
+              selected={timer[i]?.sunday}
             >S</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].monday = !newArr[i].monday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.monday}
+              selected={timer[i]?.monday}
             >M</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].tuesday = !newArr[i].tuesday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.tuesday}
+              selected={timer[i]?.tuesday}
             >T</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].wednesday = !newArr[i].wednesday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.wednesday}
+              selected={timer[i]?.wednesday}
             >W</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].thursday = !newArr[i].thursday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.thursday}
+              selected={timer[i]?.thursday}
             >T</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].friday = !newArr[i].friday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.friday}
+              selected={timer[i]?.friday}
             >F</ToggleButton>
             <ToggleButton
               color="primary"
               value="check"
               onChange={() => {
-                let newArr = [...swstatus];
+                let newArr = [...timer];
                 newArr[i].saturday = !newArr[i].saturday;
-                setSwstatus(newArr);
+                setTimer(newArr);
               }}
-              selected={swstatus[i]?.saturday}
+              selected={timer[i]?.saturday}
             >S</ToggleButton>
           </Stack>
         </CardContent>
@@ -262,6 +255,20 @@ const TankSettings: FC = () => {
     );
   };
 
+  const validateAndSave = async () => {
+    console.log("Sending...");
+
+    const timingData: AutoStartTimingList = { timing: [] };
+    timer.forEach((item, i) => {
+      console.log(item.sunday);
+      var weekToDidigit = (item.status ? 128 : 0) + (item.sunday ? 64 : 0) + (item.monday ? 32 : 0) + (item.tuesday ? 16 : 0) + (item.wednesday ? 8 : 0) + (item.thursday ? 4 : 0) + (item.friday ? 2 : 0) + (item.saturday ? 1 : 0);
+      timingData.timing.push({ hour: item.hour, minute: item.minute, weekAndState: weekToDidigit });
+      console.log(weekToDidigit);
+      
+    });
+    setData(timingData);
+    await saveData();
+  };
   return (
     <>
       <SectionContent title='Setting' titleGutter>
@@ -275,7 +282,7 @@ const TankSettings: FC = () => {
           </AccordionSummary>
 
           <div className="grid grid-cols-1 md:grid-cols-3">
-            {swstatus.map((obj, i) =>
+            {timer.map((obj, i) =>
               (<TimerCard i={i} />)
             )}
           </div>
@@ -286,9 +293,9 @@ const TankSettings: FC = () => {
               variant="contained"
               color="primary"
               type="submit"
-            // onClick={()=>setTimepopup(true)}
+              onClick={validateAndSave}
             >Save</Button>
-            <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" disabled={swstatus.length >= MAX_AUTOSTART}
+            <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" disabled={timer.length >= MAX_AUTOSTART}
               onClick={() => openTimerPopUp(100)}>
               <AddIcon />
             </Fab>
@@ -319,15 +326,19 @@ const TankSettings: FC = () => {
           >
             <Typography>Start and stop points</Typography>
 
-          </AccordionSummary><Slider
-            getAriaLabel={() => 'Temperature'}
-            orientation="vertical"
-            aria-valuetext={`${1}°C`}
-            defaultValue={[20, 37]}
-            valueLabelDisplay="auto"
-            marks={marks}
-          />
-
+          </AccordionSummary>
+          <div className='flex justify-center'>
+            <Slider
+              sx={{ height: 500, width: 200 }}
+              getAriaLabel={() => 'StopStartSetting'}
+              getAriaValueText={valuetext}
+              defaultValue={[20, 60]}
+              valueLabelDisplay="off"
+              marks={marks}
+              step={null}
+              orientation="vertical"
+            />
+          </div>
           <div className='w-full text-right'>
             <Button sx={{ margin: 1.5 }}
               startIcon={<SaveIcon />}

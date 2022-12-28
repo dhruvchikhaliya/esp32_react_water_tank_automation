@@ -1,6 +1,6 @@
 import exp from "constants";
 
-export interface PumpSetting {
+export interface PumpTimingSetting {
   hour: number;
   minute: number;
   status: boolean;
@@ -18,4 +18,13 @@ export interface index {
 export interface SetTime {
   hour: number;
   minute: number;
+}
+
+export interface AutoStartTiming {
+  hour: number;
+  minute: number;
+  weekAndState: number;
+}
+export interface AutoStartTimingList {
+  timing: AutoStartTiming[];
 }
