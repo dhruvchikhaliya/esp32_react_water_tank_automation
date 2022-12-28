@@ -1,11 +1,11 @@
 import { AxiosPromise } from 'axios';
-import { AutoStartTimingList } from '../types';
+import { AutoStartTiming } from '../types';
 import { AXIOS } from './endpoints';
 
-export function updateAutoStartTiming(autoStartTiming: AutoStartTimingList): AxiosPromise<AutoStartTimingList> {
+export function updateAutoStartTiming(autoStartTiming: AutoStartTiming[]): AxiosPromise<AutoStartTiming[]> {
     return AXIOS.post('/autoStartTiming', autoStartTiming);
 }
 
-export function readAutoStartTiming(): AxiosPromise<AutoStartTimingList> {
-    return AXIOS.get('/autoStartTiming');
-  }
+export function readAutoStartTiming(): AxiosPromise<AutoStartTiming[]> {
+    return AXIOS.get('/otaSettings');
+}
