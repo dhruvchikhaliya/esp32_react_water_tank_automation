@@ -8,14 +8,13 @@ import { PROJECT_PATH } from './api/env';
 import { AXIOS } from './api/endpoints';
 import { Layout, RequireAdmin } from './components';
 
-import ProjectRouting from './project/ProjectRouting';
-
 import WiFiConnection from './framework/wifi/WiFiConnection';
 import AccessPoint from './framework/ap/AccessPoint';
 import NetworkTime from './framework/ntp/NetworkTime';
 import Mqtt from './framework/mqtt/Mqtt';
 import System from './framework/system/System';
 import Security from './framework/security/Security';
+import TankInfo from './project/TankInfo';
 
 const AuthenticatedRouting: FC = () => {
   const { features } = useContext(FeaturesContext);
@@ -39,7 +38,7 @@ const AuthenticatedRouting: FC = () => {
     <Layout>
       <Routes>
         {features.project && (
-          <Route path={`/${PROJECT_PATH}/*`} element={<ProjectRouting />} />
+          <Route path={`/${PROJECT_PATH}/*`} element={<TankInfo />} />
         )}
         <Route path="/wifi/*" element={<WiFiConnection />} />
         <Route path="/ap/*" element={<AccessPoint />} />

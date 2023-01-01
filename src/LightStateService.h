@@ -51,7 +51,7 @@ class LightState {
 
   static StateUpdateResult haUpdate(JsonObject& root, LightState& lightState) {
     String state = root["state"];
-    // parse new led state 
+    // parse new led state
     boolean newState = false;
     if (state.equals(ON_STATE)) {
       newState = true;

@@ -1,6 +1,7 @@
 #include <ESP8266React.h>
 #include <LightMqttSettingsService.h>
 #include <LightStateService.h>
+#include <PumpAutoStartService.h>
 
 #define SERIAL_BAUD_RATE 115200
 
@@ -12,6 +13,8 @@ LightStateService lightStateService = LightStateService(&server,
                                                         esp8266React.getSecurityManager(),
                                                         esp8266React.getMqttClient(),
                                                         &lightMqttSettingsService);
+PumpAutoStartService pumpAutoStartService =
+    PumpAutoStartService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 
 void setup() {
   // start serial and filesystem

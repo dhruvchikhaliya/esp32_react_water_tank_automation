@@ -10,7 +10,7 @@ import TankStatus from './TankStatus';
 import TankSettings from './TankSettings';
 import { AuthenticatedContext } from '../contexts/authentication';
 
-const DemoProject: FC = () => {
+const TankInfo: FC = () => {
   useLayoutTitle("Water Tank");
   const { routerTab } = useRouterTab(); 
   const authenticatedContext = useContext(AuthenticatedContext);
@@ -18,16 +18,16 @@ const DemoProject: FC = () => {
   return (
     <>
       <RouterTabs value={routerTab}>
-        <Tab value="status" label="Status" />
-        <Tab value="settings" label="Settings"  disabled={!authenticatedContext.me.admin}/>
+        <Tab value="status" label="status" />
+        <Tab value="settings" label="settings"  disabled={!authenticatedContext.me.admin}/>
       </RouterTabs>
       <Routes>
         <Route path="status" element={<TankStatus />} />
-        <Route path="Settings" element={<TankSettings />} />
+        <Route path="settings" element={<TankSettings />} />
         <Route path="/*" element={<Navigate replace to="status" />} />
       </Routes>
     </>
   );
 };
 
-export default DemoProject;
+export default TankInfo;

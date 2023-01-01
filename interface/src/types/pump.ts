@@ -8,8 +8,11 @@ export interface SetTime {
   minute: number;
 }
 
-export interface AutoStartTiming {
+interface AutoStartValues {
   hour: number;
   minute: number;
   weekAndState: number;
+}
+export interface AutoStartTiming {
+  timing: AutoStartValues[];
 }

@@ -6,7 +6,6 @@ APSettingsService::APSettingsService(AsyncWebServer* server, FS* fs, SecurityMan
     _dnsServer(nullptr),
     _lastManaged(0),
     _reconfigureAp(false) {
-  addUpdateHandler([&](const String& originId) { reconfigureAP(); }, false);
 }
 
 void APSettingsService::begin() {

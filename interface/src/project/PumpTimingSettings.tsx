@@ -1,16 +1,11 @@
-import { FC, useEffect, useState } from 'react';
-import { FormLoader, SectionContent, ValidatedTextField } from '../components';
+import { FC, useState } from 'react';
+import { FormLoader } from '../components';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
-import Typography from '@mui/material/Typography/Typography';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button/Button';
-import Card from '@mui/material/Card/Card';
-import Fab from '@mui/material/Fab/Fab';
+import { Typography, CardContent, Button, Card, Fab, Dialog, DialogActions, IconButton, Stack, Switch, TextField, ToggleButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
 import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, IconButton, Slider, Stack, Switch, TextField, ToggleButton, useTheme } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
@@ -45,54 +40,43 @@ const ToggleSwitch = styled(Switch)(() => ({
     margin: 2,
   },
 }));
-var flag = true;
-const PumpTimingSettings: FC = () => {
-  // const [timer, setTimer] = React.useState<PumpTimingSetting[]>([]);
-  const [timepopup, setTimepopup] = useState<boolean>(false);
 
+const PumpTimingSettings: FC = () => {
+  const [timepopup, setTimepopup] = useState<boolean>(false);
   const {
     loadData, saving, data, setData, saveData, errorMessage
-  } = useRest<AutoStartTiming[]>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
-  // const [data, setData] = useState<AutoStartTiming[]>([{ hour: 1, minute: 5, weekAndState: 12 }]);
-  // setData([{hour:1, minute:5, weekAndState:12}]);
+  } = useRest<AutoStartTiming>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
 
   if (!data) {
     console.log(data);
     return (<FormLoader />);
   }
 
-  if (data && data.constructor !== Array) {
-    setData([]);
+  if (data && !data?.hasOwnProperty('timing')) {
+    console.log("asas");
+    setData({ timing: [] });
   }
-
-  const openTimerPopUp = (index: number) => {
-    idx = index;
-    if (idx == ADD_NEW_TIMER && data.length >= MAX_AUTOSTART) {
-      return;
-    }
-    setTimepopup(true);
-  };
 
   const closeTimerSetBox = () => {
     setTimepopup(false);
   };
 
   const saveTimer = (value: SetTime) => {
-    if (idx < data.length) {
-      let newArr = [...data];
-      data[idx].hour = value.hour;
-      data[idx].minute = value.minute;
-      setData(newArr);
+    if (idx < data.timing.length) {
+      let newArr = [...data.timing];
+      newArr[idx].hour = value.hour;
+      newArr[idx].minute = value.minute;
+      setData({ timing: newArr });
     } else {
-      let newArr = [...data];
+      let newArr = [...data.timing];
       newArr.push({ hour: value.hour, minute: value.minute, weekAndState: 0 });
-      setData(newArr);
+      setData({ timing: newArr });
     };
     setTimepopup(false);
   };
 
   const TimePopUp: FC = () => {
-    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(data[idx]?.hour ?? 0).minute(data[idx]?.minute ?? 0));
+    const [value, setValue] = React.useState<Dayjs>(dayjs().hour(idx == ADD_NEW_TIMER ? 0 : data.timing[idx]?.hour).minute(idx == ADD_NEW_TIMER ? 0 : data.timing[idx]?.minute));
 
     return (
       <>
@@ -129,11 +113,18 @@ const PumpTimingSettings: FC = () => {
     );
   };
 
+  const openTimerPopUp = (index: number) => {
+    idx = index;
+    if (idx == ADD_NEW_TIMER && data.timing.length >= MAX_AUTOSTART) {
+      return;
+    }
+    setTimepopup(true);
+  };
+
   const toggleBit = (i: number, bitIdx: number) => {
-    console.log(data[i].weekAndState);
-    let newArr = [...data];
+    let newArr = [...data.timing];
     newArr[i].weekAndState ^= 1 << bitIdx;
-    setData(newArr);
+    setData({ timing: newArr });
   };
 
   const TimerCard: FC<index> = ({ i }) => {
@@ -143,15 +134,15 @@ const PumpTimingSettings: FC = () => {
           <Stack direction="row" spacing={1} justifyContent="space-between">
             <Stack direction="row" alignItems={'baseline'} spacing={1}>
               <Typography variant="h3" component="div">
-                {`${('0' + ((data[i].hour % 12) || 12)).slice(-2)}:${('0' + (data[i].minute)).slice(-2)}`}
+                {`${('0' + ((data.timing[i].hour % 12) || 12)).slice(-2)}:${('0' + (data.timing[i].minute)).slice(-2)}`}
               </Typography>
               <Typography color="text.secondary">
-                {data[i].hour >= 12 ? 'p.m' : 'a.m'}
+                {data.timing[i].hour >= 12 ? 'p.m' : 'a.m'}
               </Typography>
             </Stack>
             <Stack direction="column" alignItems="end" spacing={0} >
               <ToggleSwitch
-                checked={(data[i].weekAndState & (1 << 7)) != 0}
+                checked={(data.timing[i].weekAndState & (1 << 7)) != 0}
                 onChange={() => toggleBit(i, 7)}
               />
               <Stack direction="row" alignItems={'baseline'} spacing={1}>
@@ -159,9 +150,9 @@ const PumpTimingSettings: FC = () => {
                   <EditIcon />
                 </IconButton>
                 <IconButton size="small" aria-label="Edit" onClick={() => {
-                  let newArr = [...data];
+                  let newArr = [...data.timing];
                   newArr.splice(i, 1);
-                  setData(newArr);
+                  setData({ timing: newArr });
                 }}>
                   <DeleteIcon />
                 </IconButton>
@@ -170,14 +161,14 @@ const PumpTimingSettings: FC = () => {
           </Stack>
 
           <Stack direction="row" spacing={1} sx={{ mt: 1 }} justifyContent="center">
-             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((val, bit) => {
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((val, bit) => {
               return <ToggleButton
                 color="primary"
                 value="check"
                 onChange={() => toggleBit(i, bit)}
-                selected={(data[i].weekAndState & (1 << bit)) != 0}
-              >{val}</ToggleButton>
-             })}
+                selected={(data.timing[i].weekAndState & (1 << bit)) != 0}
+              >{val}</ToggleButton>;
+            })}
           </Stack>
         </CardContent>
       </Card>
@@ -185,24 +176,13 @@ const PumpTimingSettings: FC = () => {
   };
 
   const validateAndSave = async () => {
-    console.log("Sending...");
-
-    // const timingData: AutoStartTimingList = { timing: [] };
-    // timer.forEach((item, i) => {
-    //   console.log(item.sunday);
-    //   var weekToDidigit = (item.status ? 128 : 0) + (item.sunday ? 64 : 0) + (item.monday ? 32 : 0) + (item.tuesday ? 16 : 0) + (item.wednesday ? 8 : 0) + (item.thursday ? 4 : 0) + (item.friday ? 2 : 0) + (item.saturday ? 1 : 0);
-    //   timingData.push({ hour: item.hour, minute: item.minute, weekAndState: weekToDidigit });
-    //   console.log(weekToDidigit);
-
-    // });
-    // setData(timingData);
-    // await saveData();
+    await saveData();
   };
+
   return (
     <>
-
       <div className="grid grid-cols-1 md:grid-cols-3">
-        {data && data.constructor === Array && data.map((obj, i) =>
+        {data.timing && data.timing.constructor === Array && data.timing.map((obj, i) =>
           (<TimerCard i={i} />)
         )}
       </div>
@@ -215,7 +195,7 @@ const PumpTimingSettings: FC = () => {
           type="submit"
           onClick={validateAndSave}
         >Save</Button>
-        <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" disabled={data.length >= MAX_AUTOSTART}
+        <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" disabled={data?.timing?.length >= MAX_AUTOSTART}
           onClick={() => openTimerPopUp(100)}>
           <AddIcon />
         </Fab>
@@ -223,7 +203,6 @@ const PumpTimingSettings: FC = () => {
       <TimePopUp />
     </>
   );
-
 };
 
 export default PumpTimingSettings;
