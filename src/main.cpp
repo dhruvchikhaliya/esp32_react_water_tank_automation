@@ -1,7 +1,9 @@
 #include <ESP8266React.h>
 #include <LightMqttSettingsService.h>
 #include <LightStateService.h>
-#include <PumpAutoStartService.h>
+#include <PumpSettingService.h>
+#include <TankStatusServices.h>
+#include <PumpStartStopPointService.h>
 
 #define SERIAL_BAUD_RATE 115200
 
@@ -13,8 +15,11 @@ LightStateService lightStateService = LightStateService(&server,
                                                         esp8266React.getSecurityManager(),
                                                         esp8266React.getMqttClient(),
                                                         &lightMqttSettingsService);
-PumpAutoStartService pumpAutoStartService =
-    PumpAutoStartService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
+TankStatusService tankStatusService = TankStatusService(&server, esp8266React.getSecurityManager());
+PumpSettingService pumpSettingService =
+    PumpSettingService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
+PumpStartStopPointService pumpStartStopPointService =
+    PumpStartStopPointService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 
 void setup() {
   // start serial and filesystem
@@ -23,11 +28,15 @@ void setup() {
   // start the framework and demo project
   esp8266React.begin();
 
-  // load the initial light settings
-  lightStateService.begin();
+  //Pump
+  pumpSettingService.begin();
+  pumpStartStopPointService.begin();
 
-  // start the light service
-  lightMqttSettingsService.begin();
+  // // load the initial light settings
+  // lightStateService.begin();
+
+  // // start the light service
+  // lightMqttSettingsService.begin();
 
   // start the server
   server.begin();

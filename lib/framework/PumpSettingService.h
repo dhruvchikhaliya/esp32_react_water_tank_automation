@@ -1,5 +1,5 @@
-#ifndef PumpAutoStartService_h
-#define PumpAutoStartService_h
+#ifndef PumpSettingService_h
+#define PumpSettingService_h
 
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
@@ -10,6 +10,7 @@
 #define MAX_AUTOSTART 5
 #define TIMING_DETAILS_SETTINGS_FILE "/config/autoStartTiming.json"
 #define TIMING_DETAILS_SETTINGS_PATH "/rest/autoStartTiming"
+
 class TimeDetails {
  public:
   uint8_t hour;
@@ -17,7 +18,8 @@ class TimeDetails {
   uint8_t weekAndState;
 
  public:
-  TimeDetails(uint8_t hour, uint8_t minute, uint8_t weekAndState) : hour(hour), minute(minute), weekAndState(weekAndState) {
+  TimeDetails(uint8_t hour, uint8_t minute, uint8_t weekAndState) :
+      hour(hour), minute(minute), weekAndState(weekAndState) {
   }
 };
 
@@ -37,7 +39,7 @@ class PumpAutoStart {
   static StateUpdateResult update(JsonObject& root, PumpAutoStart& settings) {
     if (root["timing"].is<JsonArray>()) {
       JsonArray temp = root["timing"].as<JsonArray>();
-      if (temp.size() >= MAX_AUTOSTART || temp.size() < 0) {
+      if (temp.size() > MAX_AUTOSTART || temp.size() < 0) {
         return StateUpdateResult::ERROR;
       }
       settings.timings.clear();
@@ -45,15 +47,16 @@ class PumpAutoStart {
         TimeDetails temp = TimeDetails(timing["hour"], timing["minute"], timing["weekAndState"]);
         settings.timings.push_back(temp);
       }
-      return StateUpdateResult::UNCHANGED;
+      return StateUpdateResult::CHANGED;
     }
     return StateUpdateResult::ERROR;
   }
+
 };
 
-class PumpAutoStartService : public StatefulService<PumpAutoStart> {
+class PumpSettingService : public StatefulService<PumpAutoStart> {
  public:
-  PumpAutoStartService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
+  PumpSettingService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
   void begin();
 
  private:

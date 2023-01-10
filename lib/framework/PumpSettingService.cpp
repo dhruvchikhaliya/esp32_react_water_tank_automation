@@ -1,6 +1,6 @@
-#include <PumpAutoStartService.h>
+#include <PumpSettingService.h>
 
-PumpAutoStartService::PumpAutoStartService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
+PumpSettingService::PumpSettingService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
     _httpEndpoint(PumpAutoStart::read,
                   PumpAutoStart::update,
                   this,
@@ -11,7 +11,6 @@ PumpAutoStartService::PumpAutoStartService(AsyncWebServer* server, FS* fs, Secur
     _fsPersistence(PumpAutoStart::read, PumpAutoStart::update, this, fs, TIMING_DETAILS_SETTINGS_FILE) {
 }
 
-
-void PumpAutoStartService::begin() {
+void PumpSettingService::begin() {
   _fsPersistence.readFromFS();
 }

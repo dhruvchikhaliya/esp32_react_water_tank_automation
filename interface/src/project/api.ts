@@ -1,14 +1,10 @@
 import { AxiosPromise } from "axios";
 
 import { AXIOS } from "../api/endpoints";
-import { LightMqttSettings, LightState } from "./types";
+import { LightMqttSettings, TankStatusDetails } from "./types";
 
-export function readLightState(): AxiosPromise<LightState> {
+export function readLightState(): AxiosPromise<TankStatusDetails> {
   return AXIOS.get('/lightState');
-}
-
-export function updateLightState(lightState: LightState): AxiosPromise<LightState> {
-  return AXIOS.post('/lightState', lightState);
 }
 
 export function readBrokerSettings(): AxiosPromise<LightMqttSettings> {

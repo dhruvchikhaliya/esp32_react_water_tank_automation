@@ -1,5 +1,6 @@
-export interface LightState {
-  led_on: boolean;
+export interface TankStatusDetails {
+  water_level: number;
+  speed: number;
 }
 
 export interface LightMqttSettings {

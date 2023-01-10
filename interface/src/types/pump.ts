@@ -16,3 +16,8 @@ interface AutoStartValues {
 export interface AutoStartTiming {
   timing: AutoStartValues[];
 }
+
+export interface StopPoints {
+  start: number;
+  stop: number;
+}

@@ -4,17 +4,12 @@ import { FormLoader, SectionContent, ValidatedTextField } from '../components';
 import PumpTimingSettings from './PumpTimingSettings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
-import SaveIcon from '@mui/icons-material/Save';
 import React from 'react';
+import { TankStartStopPoints } from '../types';
+import { useRest } from '../utils';
+import * as PumpApi from "../api/pump";
+import StartStopPointSettings from './StartStopPointSettings';
 
-function valuetext(value: number) {
-  return `${value}°C`;
-}
-
-const marks = Array.from({ length: 11 }, (_, i) => ({
-  value: (i * 10),
-  label: `${i * 200}L`,
-}));
 
 const TankSettings: FC = () => {
   const [expanded, setExpanded] = React.useState<string | false>(false);
@@ -62,28 +57,7 @@ const TankSettings: FC = () => {
             <Typography>Start and stop points</Typography>
 
           </AccordionSummary>
-          <div className='flex justify-center'>
-            <Slider
-              sx={{ height: 500, width: 200 }}
-              getAriaLabel={() => 'StopStartSetting'}
-              getAriaValueText={valuetext}
-              defaultValue={[20, 60]}
-              valueLabelDisplay="off"
-              marks={marks}
-              step={null}
-              orientation="vertical"
-            />
-          </div>
-          <div className='w-full text-right'>
-            <Button sx={{ margin: 1.5 }}
-              startIcon={<SaveIcon />}
-              // disabled={saving || noAdminConfigured()}
-              variant="contained"
-              color="primary"
-              type="submit"
-            // onClick={()=>setTimepopup(true)}
-            >Save</Button>
-          </div>
+          <StartStopPointSettings/>
         </Accordion>
       </SectionContent>
     </>
