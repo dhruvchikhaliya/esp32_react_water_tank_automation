@@ -7,6 +7,14 @@
 #include <HttpEndpoint.h>
 #include <FSPersistence.h>
 
+#ifndef PUMP_START_POINT
+#define PUMP_START_POINT 10
+#endif
+
+#ifndef PUMP_STOP_POINT
+#define PUMP_STOP_POINT 40
+#endif
+
 #define START_STOP_SETTINGS_FILE "/config/startStopPoint.json"
 #define START_STOP_SETTINGS_PATH "/rest/startStopPoint"
 
@@ -23,8 +31,8 @@ class StartStopPoints {
   }
 
   static StateUpdateResult update(JsonObject& root, StartStopPoints& settings) {
-    settings.start = root["start"];
-    settings.stop = root["stop"];
+    settings.start = root["start"] | PUMP_START_POINT;
+    settings.stop = root["stop"] | PUMP_STOP_POINT;
     return StateUpdateResult::CHANGED;
   }
 };
