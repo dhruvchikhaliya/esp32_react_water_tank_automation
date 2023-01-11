@@ -5,7 +5,6 @@ import PumpTimingSettings from './PumpTimingSettings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
-import { TankStartStopPoints } from '../types';
 import { useRest } from '../utils';
 import * as PumpApi from "../api/pump";
 import StartStopPointSettings from './StartStopPointSettings';
