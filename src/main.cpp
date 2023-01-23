@@ -26,6 +26,9 @@ PumpStartStopPointService pumpStartStopPointService =
 TaskHandle_t Task1;
 TaskHandle_t Task2;
 
+void Services(void* pvParameters);
+void TankController(void* pvParameters);
+
 void setup() {
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
@@ -45,7 +48,8 @@ void setup() {
 
   // start the server
   server.begin();
-  xTaskCreatePinnedToCore(Serivces, /* Task function. */
+
+  xTaskCreatePinnedToCore(Services, /* Task function. */
                           "Task1",  /* name of task. */
                           10000,    /* Stack size of task */
                           NULL,     /* parameter of the task */
@@ -65,7 +69,7 @@ void setup() {
   delay(500);
 }
 
-void Serivces(void* pvParameters) {
+void Services(void* pvParameters) {
   // run the framework's loop function
   esp8266React.loop();
 }
