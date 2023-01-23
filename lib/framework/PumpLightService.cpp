@@ -1,5 +1,7 @@
 #include <PumpLightService.h>
 
+CRGB leds[NUM_LEDS];
+
 PumpLightService::PumpLightService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager) :
     _httpEndpoint(LightColors::read,
                   LightColors::update,
@@ -13,4 +15,6 @@ PumpLightService::PumpLightService(AsyncWebServer* server, FS* fs, SecurityManag
 
 void PumpLightService::begin() {
   _fsPersistence.readFromFS();
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS); 
+  leds[0] = CRGB::White; FastLED; delay(30);
 }

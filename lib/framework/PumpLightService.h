@@ -10,7 +10,6 @@
 
 #define NUM_LEDS 1
 #define LED_PIN 2
-CRGB leds[NUM_LEDS];
 
 #define IDEAL_COLOR 10
 #define PUMP_RUNNING_COLOT 40
@@ -26,7 +25,7 @@ class Light {
 
  public:
   Light(uint8_t color, uint8_t brightness) :
-      color(color), brightness(brightness)) {
+      color(color), brightness(brightness) {
   }
 };
 
@@ -35,13 +34,13 @@ class LightColors {
     std::list<Light> lights;
 
   static void read(LightColors& settings, JsonObject& root) {
-    root["start"] = settings.start;
-    root["stop"] = settings.stop;
+    // root["start"] = settings.start;
+    // root["stop"] = settings.stop;
   }
 
   static StateUpdateResult update(JsonObject& root, LightColors& settings) {
-    settings.start = root["start"] | PUMP_START_POINT;
-    settings.stop = root["stop"] | PUMP_STOP_POINT;
+    // settings.start = root["start"] | PUMP_START_POINT;
+    // settings.stop = root["stop"] | PUMP_STOP_POINT;
     return StateUpdateResult::CHANGED;
   }
 };
