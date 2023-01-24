@@ -8,6 +8,8 @@
 
 #define SERIAL_BAUD_RATE 115200
 
+int water_level = 2000;
+
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
 LightMqttSettingsService lightMqttSettingsService =
@@ -49,23 +51,10 @@ void setup() {
   // start the server
   server.begin();
 
-  xTaskCreatePinnedToCore(Services, /* Task function. */
-                          "Task1",  /* name of task. */
-                          10000,    /* Stack size of task */
-                          NULL,     /* parameter of the task */
-                          1,        /* priority of the task */
-                          &Task1,   /* Task handle to keep track of created task */
-                          0);       /* pin task to core 0 */
+  xTaskCreatePinnedToCore(Services, "Task1", 10000, NULL, 1, &Task1, 0);
   delay(500);
 
-  // create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
-  xTaskCreatePinnedToCore(TankController, /* Task function. */
-                          "Task2",        /* name of task. */
-                          10000,          /* Stack size of task */
-                          NULL,           /* parameter of the task */
-                          1,              /* priority of the task */
-                          &Task2,         /* Task handle to keep track of created task */
-                          1);             /* pin task to core 1 */
+  xTaskCreatePinnedToCore(TankController, "Task2", 10000, NULL, 1, &Task2, 1);
   delay(500);
 }
 
@@ -78,5 +67,4 @@ void TankController(void* pvParameters) {
 }
 
 void loop() {
-  
 }
