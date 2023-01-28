@@ -7,6 +7,7 @@
 #include <PumpLightService.h>
 
 #define SERIAL_BAUD_RATE 115200
+#define SERIAL2_BAUD_RATE 9200
 
 int water_level = 2000;
 
@@ -34,6 +35,7 @@ void TankController(void* pvParameters);
 void setup() {
   // start serial and filesystem
   Serial.begin(SERIAL_BAUD_RATE);
+  Serial2.begin(SERIAL2_BAUD_RATE);
 
   // start the framework and demo project
   esp8266React.begin();
@@ -51,11 +53,11 @@ void setup() {
   // start the server
   server.begin();
 
-  xTaskCreatePinnedToCore(Services, "Task1", 10000, NULL, 1, &Task1, 0);
-  delay(500);
+  // xTaskCreatePinnedToCore(Services, "Task1", 10000, NULL, 1, &Task1, 0);
+  // delay(500);
 
-  xTaskCreatePinnedToCore(TankController, "Task2", 10000, NULL, 1, &Task2, 1);
-  delay(500);
+  // xTaskCreatePinnedToCore(TankController, "Task2", 10000, NULL, 1, &Task2, 1);
+  // delay(500);
 }
 
 void Services(void* pvParameters) {
@@ -64,7 +66,14 @@ void Services(void* pvParameters) {
 }
 
 void TankController(void* pvParameters) {
+  if (Serial2.available()) {
+    Serial.println(Serial2.read());
+  }
 }
 
 void loop() {
+  esp8266React.loop();
+  if (Serial2.available()) {
+    Serial.println(Serial2.read());
+  }
 }

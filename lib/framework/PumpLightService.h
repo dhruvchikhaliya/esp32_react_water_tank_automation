@@ -9,7 +9,7 @@
 #include <FastLED.h>
 
 #define NUM_LEDS 1
-#define LED_PIN 2
+#define LED_PIN 15
 
 #define IDEAL_COLOR 10
 #define PUMP_RUNNING_COLOT 40
