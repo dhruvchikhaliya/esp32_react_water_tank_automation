@@ -28,7 +28,6 @@ class TankStatusService : public StatefulService<TankStatus> {
 
  private:
   WebSocketTxRx<TankStatus> _webSocket;
-  int* water_level_p;
   TANK_DETAILS* tank;
 };
 

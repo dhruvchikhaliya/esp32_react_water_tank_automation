@@ -6,6 +6,8 @@
 #include <SecurityManager.h>
 #include <HttpEndpoint.h>
 #include <FSPersistence.h>
+#include <TankData.h>
+#include <PumpStartStopPointService.h>
 
 #define MAX_AUTOSTART 5
 #define TIMING_DETAILS_SETTINGS_FILE "/config/autoStartTiming.json"
@@ -51,17 +53,23 @@ class PumpAutoStart {
     }
     return StateUpdateResult::ERROR;
   }
-
 };
 
 class PumpSettingService : public StatefulService<PumpAutoStart> {
  public:
-  PumpSettingService(AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
+  PumpSettingService(TANK_DETAILS* tankdetails,
+                     PumpStartStopPointService* pumpSsService,
+                     AsyncWebServer* server,
+                     FS* fs,
+                     SecurityManager* securityManager);
   void begin();
+  void loop();
 
  private:
   HttpEndpoint<PumpAutoStart> _httpEndpoint;
   FSPersistence<PumpAutoStart> _fsPersistence;
+  PumpStartStopPointService* _pumpSsService;
+  TANK_DETAILS* tank;
 };
 
 #endif
