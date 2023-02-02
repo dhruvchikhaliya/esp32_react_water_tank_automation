@@ -5,11 +5,13 @@
 #include <TankStatusServices.h>
 #include <PumpStartStopPointService.h>
 #include <PumpLightService.h>
+#include <TankData.h>
 
 #define SERIAL_BAUD_RATE 115200
 #define SERIAL2_BAUD_RATE 9600
+#define WINDOW_SIZE 30
 
-int water_level = 2000;
+TANK_DETAILS tank(0, 0, 0);
 
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
@@ -19,7 +21,7 @@ LightStateService lightStateService = LightStateService(&server,
                                                         esp8266React.getSecurityManager(),
                                                         esp8266React.getMqttClient(),
                                                         &lightMqttSettingsService);
-TankStatusService tankStatusService = TankStatusService(&server, esp8266React.getSecurityManager());
+TankStatusService tankStatusService = TankStatusService(&tank, &server, esp8266React.getSecurityManager());
 PumpLightService pumpLightService = PumpLightService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
 PumpSettingService pumpSettingService =
     PumpSettingService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
@@ -38,45 +40,71 @@ void setup() {
   Serial.begin(SERIAL_BAUD_RATE);
   Serial2.begin(SERIAL2_BAUD_RATE);
 
-  // // start the framework and demo project
-  // esp8266React.begin();
+  // start the framework and demo project
+  esp8266React.begin();
 
-  // // Pump
-  // pumpSettingService.begin();
-  // pumpStartStopPointService.begin();
+  // Pump
+  pumpSettingService.begin();
+  pumpStartStopPointService.begin();
 
-  // // // load the initial light settings
-  // // lightStateService.begin();
+  // // load the initial light settings
+  // lightStateService.begin();
 
-  // // // start the light service
-  // // lightMqttSettingsService.begin();
+  // // start the light service
+  // lightMqttSettingsService.begin();
 
-  // // start the server
-  // server.begin();
+  // start the server
+  server.begin();
 
-  // xTaskCreatePinnedToCore(Services, "Task1", 10000, NULL, 1, &Task1, 0);
-  // delay(500);
+  xTaskCreatePinnedToCore(Services, "Task1", 18000, NULL, 1, &Task1, 0);
+  delay(500);
 
-  // xTaskCreatePinnedToCore(TankController, "Task2", 10000, NULL, 1, &Task2, 1);
-  // delay(500);
+  xTaskCreatePinnedToCore(TankController, "Task2", 2000, NULL, 1, &Task2, 1);
+  delay(500);
 }
 
 void Services(void* pvParameters) {
   // run the framework's loop function
-  esp8266React.loop();
+  while (1) {
+    esp8266React.loop();
+    tankStatusService.loop();
+    vTaskDelay(1000);
+  }
 }
 
 void TankController(void* pvParameters) {
-  if (Serial2.available()) {
-    Serial.println(Serial2.read());
+  uint16_t READINGS[WINDOW_SIZE];
+  unsigned long timming[WINDOW_SIZE];
+  uint8_t idx;
+  uint16_t water_sum = 0;
+  unsigned long prv_millis = millis();
+  while (1) {
+    if (Serial2.available()) {
+      water_sum -= READINGS[idx];
+      READINGS[idx] = getDistance();
+      timming[idx] = millis();
+      water_sum += READINGS[idx];
+      idx = (idx + 1) % WINDOW_SIZE;
+      tank.level = water_sum / WINDOW_SIZE;
+
+      tank.speed =
+          abs(((tank.prv_level - tank.level) * 2500 * 3.14) / ((timming[idx] - timming[(idx - 1) % WINDOW_SIZE])));
+      Serial.print(tank.level);
+      Serial.print("....");
+      Serial.println(tank.speed);
+    }
+    // if (idx == 0) {
+    //   vTaskDelay(1000);
+    // }
   }
 }
 
 void loop() {
   // esp8266React.loop();
-  if (Serial2.available()) {
-    water_level = getDistance();
-  }
+  // // esp8266React.loop();
+  // if (Serial2.available()) {
+  //   water_level = getDistance();
+  // }
 }
 int getDistance() {
   unsigned int distance;
@@ -90,13 +118,9 @@ int getDistance() {
     l_data = buf[1];
     sum = buf[2];
     distance = (h_data << 8) + l_data;
-    if (((h_data + l_data)) != sum) {
-    } else {
+    if (((h_data + l_data)) == sum) {
       return distance;
     }
-  }  
-
-  else
-    return;
-  delay(100);
+  }
+  return 0;
 }
