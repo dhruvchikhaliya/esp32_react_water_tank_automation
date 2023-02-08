@@ -1,5 +1,5 @@
 import { AxiosPromise } from 'axios';
-import { AutoStartTiming, StopPoints } from '../types';
+import { AutoStartTiming, StopPoints, LedColors } from '../types';
 import { AXIOS } from './endpoints';
 
 export function updateAutoStartTiming(autoStartTiming: AutoStartTiming): AxiosPromise<AutoStartTiming> {
@@ -16,4 +16,12 @@ export function updateStartStopPoint(startStopPoint: StopPoints): AxiosPromise<S
 
 export function readStartStopPoint(): AxiosPromise<StopPoints> {
     return AXIOS.get('/startStopPoint');
+}
+
+export function updateColorSetting(ledColors: LedColors): AxiosPromise<LedColors> {
+    return AXIOS.post('/colorSetting', ledColors);
+}
+
+export function readColorSetting(): AxiosPromise<LedColors> {
+    return AXIOS.get('/colorSetting');
 }

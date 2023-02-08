@@ -22,4 +22,12 @@ void PumpSettingService::begin() {
 }
 
 void PumpSettingService::loop() {
+  time_t now = time(nullptr);
+  struct tm t = *localtime(&now);
+  for (TimeDetails timing : _state.timings) {
+    if (!tank->pump_running && (timing.weekAndState & (1 << 7)) && (timing.weekAndState & (1 >> t.tm_wday)) &&
+        timing.hour == t.tm_hour && (timing.minute >= t.tm_min || timing.minute <= t.tm_min+2)) {
+      _pumpSsService->start();
+    }
+  }
 }

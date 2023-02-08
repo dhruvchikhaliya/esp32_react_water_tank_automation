@@ -37,7 +37,9 @@ void PumpLightService::loop() {
   } else if (tank->fault_relay) {
     color = CRGB(_state.lights.fault_relay);
   }
+    // color = CRGB(0xff0ff0);
   led[0] = color;
   FastLED.setBrightness(_state.lights.brightness);
+  // FastLED.setBrightness(0xff);
   FastLED.show();
 }

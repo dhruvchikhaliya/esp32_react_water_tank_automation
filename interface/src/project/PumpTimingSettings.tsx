@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { FormLoader } from '../components';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
-import { Typography, CardContent, Button, Card, Fab, Dialog, DialogActions, IconButton, Stack, Switch, TextField, ToggleButton } from '@mui/material';
+import { Typography, CardContent, Button, Card, Fab, Dialog, DialogActions, IconButton, Stack, Switch, TextField, ToggleButton, useMediaQuery, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
 import SaveIcon from '@mui/icons-material/Save';
@@ -42,18 +42,17 @@ const ToggleSwitch = styled(Switch)(() => ({
 }));
 
 const PumpTimingSettings: FC = () => {
+  const isMobile = useMediaQuery('(min-width:600px)');
   const [timepopup, setTimepopup] = useState<boolean>(false);
   const {
     loadData, saving, data, setData, saveData, errorMessage
   } = useRest<AutoStartTiming>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
 
   if (!data) {
-    console.log(data);
     return (<FormLoader />);
   }
 
   if (data && !data?.hasOwnProperty('timing')) {
-    console.log("asas");
     setData({ timing: [] });
   }
 
@@ -74,7 +73,6 @@ const PumpTimingSettings: FC = () => {
     };
     setTimepopup(false);
   };
-
   const TimePopUp: FC = () => {
     const [value, setValue] = React.useState<Dayjs>(dayjs().hour(idx == ADD_NEW_TIMER ? 0 : data.timing[idx]?.hour).minute(idx == ADD_NEW_TIMER ? 0 : data.timing[idx]?.minute));
 
@@ -85,8 +83,8 @@ const PumpTimingSettings: FC = () => {
           onClose={closeTimerSetBox}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <StaticTimePicker
+              orientation={isMobile ? "landscape" : "portrait"}
               ampm
-              orientation="landscape"
               openTo="hours"
               value={value}
               onChange={(newValue) => {

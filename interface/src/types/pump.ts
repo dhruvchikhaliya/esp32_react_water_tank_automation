@@ -21,3 +21,13 @@ export interface StopPoints {
   start: number;
   stop: number;
 }
+
+export interface LedColors {
+  ideal: number;
+  fault_sensor: number;
+  pump_running: number;
+  automatic_start: number;
+  interface_open: number;
+  brightness: number;
+  system_error: number;
+}

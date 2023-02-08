@@ -26,8 +26,11 @@ void PumpStartStopPointService::stop() {
 }
 
 void PumpStartStopPointService::start() {
-  digitalWrite(RELAY_PIN, HIGH);
-  tank->pump_running = true;
+  if (tank->level < _state.stop && !tank->pump_running) {
+    digitalWrite(RELAY_PIN, HIGH);
+    tank->running_since = millis();
+    tank->pump_running = true;
+  }
 }
 
 void PumpStartStopPointService::loop() {

@@ -8,6 +8,7 @@ import React from 'react';
 import { useRest } from '../utils';
 import * as PumpApi from "../api/pump";
 import StartStopPointSettings from './StartStopPointSettings';
+import LedColorSetting from './LedColorSetting';
 
 
 const TankSettings: FC = () => {
@@ -40,11 +41,12 @@ const TankSettings: FC = () => {
           >
             <Typography>LED color settings</Typography>
           </AccordionSummary>
-          <div className='w-full text-right'>
+          {/* <div className='w-full text-right'>
             <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" >
               <AddIcon />
             </Fab>
-          </div>
+          </div> */}
+          <LedColorSetting />
         </Accordion>
 
         <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
@@ -56,7 +58,7 @@ const TankSettings: FC = () => {
             <Typography>Start and stop points</Typography>
 
           </AccordionSummary>
-          <StartStopPointSettings/>
+          <StartStopPointSettings />
         </Accordion>
       </SectionContent>
     </>

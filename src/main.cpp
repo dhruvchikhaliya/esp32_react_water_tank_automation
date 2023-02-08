@@ -50,6 +50,7 @@ void setup() {
   // Pump
   pumpSettingService.begin();
   pumpStartStopPointService.begin();
+  pumpLightService.begin();
 
   // // load the initial light settings
   // lightStateService.begin();
@@ -72,6 +73,7 @@ void Services(void* pvParameters) {
   while (1) {
     esp8266React.loop();
     tankStatusService.loop();
+    pumpLightService.loop();
     vTaskDelay(1000);
   }
 }
@@ -100,7 +102,7 @@ void TankController(void* pvParameters) {
     if (Serial2.available()) {
       water_sum -= READINGS[idx];
       READINGS[idx] = getDistance();
-      if (READINGS[idx] != 0) {
+      if (READINGS[idx] == 0) {
         pumpStartStopPointService.stop();
         tank.fault_sensor = true;
       } else {
