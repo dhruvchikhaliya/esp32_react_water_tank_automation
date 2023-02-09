@@ -20,7 +20,7 @@ const StartStopPointSettings: FC = () => {
         loadData, saving, data, setData, saveData, errorMessage
     } = useRest<StopPoints>({ read: PumpApi.readStartStopPoint, update: PumpApi.updateStartStopPoint });
 
-    if (!data) {
+    if (!data || !data?.hasOwnProperty('start') || !data?.hasOwnProperty('stop')) {
         return (<FormLoader />);
     }
 

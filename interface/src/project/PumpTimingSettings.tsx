@@ -48,13 +48,13 @@ const PumpTimingSettings: FC = () => {
     loadData, saving, data, setData, saveData, errorMessage
   } = useRest<AutoStartTiming>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
 
-  if (!data) {
+  if (!data || !data?.hasOwnProperty('timing') || data.timing.constructor != Array) {
     return (<FormLoader />);
   }
 
-  if (data && !data?.hasOwnProperty('timing')) {
-    setData({ timing: [] });
-  }
+  // if (data && !data?.hasOwnProperty('timing')) {
+  //   setData({ timing: [] });
+  // }
 
   const closeTimerSetBox = () => {
     setTimepopup(false);
@@ -180,7 +180,7 @@ const PumpTimingSettings: FC = () => {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3">
-        {data.timing && data.timing.constructor === Array && data.timing.map((obj, i) =>
+        {data.timing.map((obj, i) =>
           (<TimerCard i={i} />)
         )}
       </div>

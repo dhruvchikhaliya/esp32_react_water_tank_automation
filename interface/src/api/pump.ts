@@ -19,9 +19,9 @@ export function readStartStopPoint(): AxiosPromise<StopPoints> {
 }
 
 export function updateColorSetting(ledColors: LedColors): AxiosPromise<LedColors> {
-    return AXIOS.post('/colorSetting', ledColors);
+    return AXIOS.post('/light', ledColors);
 }
 
 export function readColorSetting(): AxiosPromise<LedColors> {
-    return AXIOS.get('/colorSetting');
+    return AXIOS.get('/light');
 }

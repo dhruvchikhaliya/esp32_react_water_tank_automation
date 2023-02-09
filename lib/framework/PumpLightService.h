@@ -15,51 +15,44 @@
 #define IDEAL_COLOR 10
 #define PUMP_RUNNING_COLOT 40
 #define INTERFACE_OPEN 40
+#define BRIGHTNESS 0xFF
 
 #define LIGHT_COLOR_SETTINGS_FILE "/config/light.json"
 #define LIGHT_COLOR_SETTINGS_PATH "/rest/light"
 
-class Light {
- public:
-  uint32_t fault_sensor;
-  uint32_t fault_relay;
-  uint32_t pump_running;
-  uint32_t ideal;
-  uint32_t automatic_start;
-  uint32_t interface_open;
-  uint8_t brightness;
-
- public:
-  Light(uint32_t fault_sensor = 0,
-        uint32_t fault_relay = 0,
-        uint32_t pump_running = 0,
-        uint32_t ideal = 0,
-        uint32_t automatic_start = 0,
-        uint32_t interface_open = 0,
-        uint8_t brightness = 0) :
-      fault_sensor(fault_sensor),
-      fault_relay(fault_relay),
-      pump_running(pump_running),
-      ideal(ideal),
-      automatic_start(automatic_start),
-      interface_open(interface_open),
-      brightness(brightness) {
-  }
-};
-
 class LightColors {
  public:
-  Light lights;
+  uint32_t ideal;
+  uint32_t pump_running;
+  uint32_t interface_open;
+  uint32_t fault_sensor;
+  uint32_t fault_relay;
 
   static void read(LightColors& settings, JsonObject& root) {
-    // root["start"] = settings.start;
-    // root["stop"] = settings.stop;
+    JsonArray colors = root.createNestedArray("colors");
+    colors.add(settings.ideal);
+    colors.add(settings.pump_running);
+    colors.add(settings.interface_open);
+    colors.add(settings.fault_sensor);
+    colors.add(settings.fault_relay);
   }
 
   static StateUpdateResult update(JsonObject& root, LightColors& settings) {
-    // settings.start = root["start"] | PUMP_START_POINT;
-    // settings.stop = root["stop"] | PUMP_STOP_POINT;
-    return StateUpdateResult::CHANGED;
+    if (root["colors"].is<JsonArray>() && root["colors"].size() == 5) {
+      JsonArray colors = root["root"].as<JsonArray>();
+      settings.ideal = colors[0];
+      settings.pump_running = colors[1];
+      settings.interface_open = colors[2];
+      settings.fault_sensor = colors[3];
+      settings.fault_relay = colors[4];
+      return StateUpdateResult::CHANGED;
+    }
+    settings.ideal = 0x00FF00;
+    settings.pump_running = 0x0000FF;
+    settings.interface_open = 0x008491;
+    settings.fault_sensor = 0xFFFF00;
+    settings.fault_relay = 0xFF0000;
+    return StateUpdateResult::ERROR
   }
 };
 

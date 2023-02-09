@@ -12,32 +12,40 @@ import ChromePicker from "react-color/lib/components/chrome/Chrome";
 import CloseIcon from '@mui/icons-material/Close';
 
 var finalColor = "";
+var idx = 0;
 const LedColorSetting: FC = () => {
     const isMobile = useMediaQuery('(min-width:600px)');
     const [colorPicker, setColorPicker] = useState<boolean>(false);
     const [color, setColor] = useState<string>("");
+
     const {
         loadData, saving, data, setData, saveData, errorMessage
     } = useRest<LedColors>({ read: PumpApi.readColorSetting, update: PumpApi.updateColorSetting });
 
-    if (!data) {
+    if (!data) {//|| !data?.hasOwnProperty('colors')|| (data?.colors.length != 5)
         return (<FormLoader />);
     }
-
 
     const handleClose = () => {
         setColorPicker(false);
     };
 
     const handleSave = () => {
-        var tmp = { ...data };
-        tmp.ideal = Number(finalColor.replace('#', '0x'));
+        // var tmp = { ...data };
+        var tmp = { colors: [1, 1, 1, 1, 1] };
+        tmp.colors[idx] = Number(finalColor.replace('#', '0x'));
         setData(tmp);
         setColorPicker(false);
     };
 
-    const openColorPicker = () => {
+    const openColorPicker = (i: number) => {
+        idx = i;
+        setColor(`#${data.colors?.[idx].toString(16)}`);
         setColorPicker(true);
+    };
+
+    const validateAndSave = async () => {
+        await saveData();
     };
     const style = {
         default: {
@@ -52,17 +60,18 @@ const LedColorSetting: FC = () => {
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-5">
-                {['Ideal', 'Sensor F'].map((val, i) => {
+                {['Ideal', 'Pump Run', 'Interface Open', 'Sensor Fault', 'Relay Fault'].map((val: string, i: number) => {
                     return (
                         <><Card variant="outlined" sx={{ borderRadius: 5, display: 'inline-block', width: 170, margin: 2, textAlign: "center", paddingBottom: 1 }} >
-                            <CardContent sx={{ textAlign: "center", justifyContent: "center", display: "flex" }}>
-                                <div className="w-20 h-20 rounded-full leading-20"
-                                    style={{ backgroundColor: `#${data.ideal?.toString(16)}`, textAlign: "center", display: "block" }}
-                                    onClick={openColorPicker}>
-                                    {`#${data.ideal?.toString(16)}`}
+                            <CardContent sx={{ textAlign: "center", justifyContent: "center", display: "inline-block", paddingBottom: 0 }}>
+                                <div className="w-20 h-20 rounded-full border-2" onClick={() => openColorPicker(i)}
+                                    style={{ backgroundColor: `#${data.colors?.[i].toString(16)}`, textAlign: "center", display: "block" }}>
                                 </div>
+                                <Typography variant="subtitle1">
+                                    {`#${data.colors?.[i].toString(16)}`}
+                                </Typography>
                             </CardContent>
-                            <Typography variant="h5">
+                            <Typography variant="h6">
                                 {val}
                             </Typography>
                         </Card>
