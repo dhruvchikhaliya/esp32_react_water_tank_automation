@@ -10,6 +10,7 @@ import Chrome from "react-color/lib/components/chrome/Chrome";
 import { bgcolor, height } from "@mui/system";
 import ChromePicker from "react-color/lib/components/chrome/Chrome";
 import CloseIcon from '@mui/icons-material/Close';
+import { SliderPicker } from "react-color";
 
 var finalColor = "";
 var idx = 0;
@@ -32,7 +33,7 @@ const LedColorSetting: FC = () => {
 
     const handleSave = () => {
         // var tmp = { ...data };
-        var tmp = { colors: [1, 1, 1, 1, 1] };
+        var tmp = { colors: [132, 1, 132, 1, 1432] };
         tmp.colors[idx] = Number(finalColor.replace('#', '0x'));
         setData(tmp);
         setColorPicker(false);
@@ -49,6 +50,9 @@ const LedColorSetting: FC = () => {
     };
     const style = {
         default: {
+            body: {
+                bgcolor: "#0000"
+            },
             picker: {
                 width: 500
             },
@@ -64,9 +68,9 @@ const LedColorSetting: FC = () => {
                     return (
                         <><Card variant="outlined" sx={{ borderRadius: 5, display: 'inline-block', width: 170, margin: 2, textAlign: "center", paddingBottom: 1 }} >
                             <CardContent sx={{ textAlign: "center", justifyContent: "center", display: "inline-block", paddingBottom: 0 }}>
-                                <div className="w-20 h-20 rounded-full border-2" onClick={() => openColorPicker(i)}
-                                    style={{ backgroundColor: `#${data.colors?.[i].toString(16)}`, textAlign: "center", display: "block" }}>
-                                </div>
+                                <div className="w-20 h-20 rounded-full border-2"
+                                    style={{ backgroundColor: `#${data.colors?.[i].toString(16)}`, textAlign: "center", display: "block" }}
+                                    onClick={() => openColorPicker(i)}></div>
                                 <Typography variant="subtitle1">
                                     {`#${data.colors?.[i].toString(16)}`}
                                 </Typography>
@@ -96,9 +100,9 @@ const LedColorSetting: FC = () => {
                 open={colorPicker}
                 onClose={handleClose}>
                 <DialogTitle>Pick a color</DialogTitle>
-                <ChromePicker
-                    disableAlpha={true}
-                    styles={style}
+                <SliderPicker 
+                    // disableAlpha={true}
+                    // styles={style}
                     color={color}
                     onChange={(color) => { setColor(color.hex); }}
                     onChangeComplete={(color) => { finalColor = color.hex; }}

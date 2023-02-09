@@ -13,11 +13,12 @@ TANK_DETAILS tank;
 
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
-TankStatusService tankStatusService = TankStatusService(&tank, &server, esp8266React.getSecurityManager());
 PumpLightService pumpLightService =
     PumpLightService(&tank, &server, esp8266React.getFS(), esp8266React.getSecurityManager());
 PumpStartStopPointService pumpStartStopPointService =
     PumpStartStopPointService(&tank, &server, esp8266React.getFS(), esp8266React.getSecurityManager());
+TankStatusService tankStatusService =
+    TankStatusService(&tank, &pumpStartStopPointService, &server, esp8266React.getSecurityManager());
 PumpSettingService pumpSettingService = PumpSettingService(&tank,
                                                            &pumpStartStopPointService,
                                                            &server,
