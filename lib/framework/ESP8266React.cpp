@@ -18,10 +18,6 @@ ESP8266React::ESP8266React(AsyncWebServer* server) :
 #if FT_ENABLED(FT_UPLOAD_FIRMWARE)
     _uploadFirmwareService(server, &_securitySettingsService),
 #endif
-#if FT_ENABLED(FT_MQTT)
-    _mqttSettingsService(server, &ESPFS, &_securitySettingsService),
-    _mqttStatus(server, &_mqttSettingsService, &_securitySettingsService),
-#endif
 #if FT_ENABLED(FT_SECURITY)
     _authenticationService(server, &_securitySettingsService),
 #endif
@@ -94,9 +90,6 @@ void ESP8266React::begin() {
 #if FT_ENABLED(FT_OTA)
   _otaSettingsService.begin();
 #endif
-#if FT_ENABLED(FT_MQTT)
-  _mqttSettingsService.begin();
-#endif
 #if FT_ENABLED(FT_SECURITY)
   _securitySettingsService.begin();
 #endif
@@ -107,8 +100,5 @@ void ESP8266React::loop() {
   _apSettingsService.loop();
 #if FT_ENABLED(FT_OTA)
   _otaSettingsService.loop();
-#endif
-#if FT_ENABLED(FT_MQTT)
-  _mqttSettingsService.loop();
 #endif
 }

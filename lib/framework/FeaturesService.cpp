@@ -17,11 +17,6 @@ void FeaturesService::features(AsyncWebServerRequest* request) {
 #else
   root["security"] = false;
 #endif
-#if FT_ENABLED(FT_MQTT)
-  root["mqtt"] = true;
-#else
-  root["mqtt"] = false;
-#endif
 #if FT_ENABLED(FT_NTP)
   root["ntp"] = true;
 #else

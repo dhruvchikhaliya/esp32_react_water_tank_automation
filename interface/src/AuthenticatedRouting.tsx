@@ -11,7 +11,6 @@ import { Layout, RequireAdmin } from './components';
 import WiFiConnection from './framework/wifi/WiFiConnection';
 import AccessPoint from './framework/ap/AccessPoint';
 import NetworkTime from './framework/ntp/NetworkTime';
-import Mqtt from './framework/mqtt/Mqtt';
 import System from './framework/system/System';
 import Security from './framework/security/Security';
 import TankInfo from './project/TankInfo';
@@ -44,9 +43,6 @@ const AuthenticatedRouting: FC = () => {
         <Route path="/ap/*" element={<AccessPoint />} />
         {features.ntp && (
           <Route path="/ntp/*" element={<NetworkTime />} />
-        )}
-        {features.mqtt && (
-          <Route path="/mqtt/*" element={<Mqtt />} />
         )}
         {features.security && (
           <Route

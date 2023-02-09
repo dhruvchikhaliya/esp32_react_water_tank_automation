@@ -1,6 +1,4 @@
 #include <ESP8266React.h>
-#include <LightMqttSettingsService.h>
-#include <LightStateService.h>
 #include <PumpSettingService.h>
 #include <TankStatusServices.h>
 #include <PumpStartStopPointService.h>
@@ -15,12 +13,6 @@ TANK_DETAILS tank;
 
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server);
-LightMqttSettingsService lightMqttSettingsService =
-    LightMqttSettingsService(&server, esp8266React.getFS(), esp8266React.getSecurityManager());
-LightStateService lightStateService = LightStateService(&server,
-                                                        esp8266React.getSecurityManager(),
-                                                        esp8266React.getMqttClient(),
-                                                        &lightMqttSettingsService);
 TankStatusService tankStatusService = TankStatusService(&tank, &server, esp8266React.getSecurityManager());
 PumpLightService pumpLightService =
     PumpLightService(&tank, &server, esp8266React.getFS(), esp8266React.getSecurityManager());
@@ -51,12 +43,6 @@ void setup() {
   pumpSettingService.begin();
   pumpStartStopPointService.begin();
   pumpLightService.begin();
-
-  // // load the initial light settings
-  // lightStateService.begin();
-
-  // // start the light service
-  // lightMqttSettingsService.begin();
 
   // start the server
   server.begin();

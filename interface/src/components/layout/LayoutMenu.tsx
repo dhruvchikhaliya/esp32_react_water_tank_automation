@@ -32,9 +32,6 @@ const LayoutMenu: FC = () => {
         {features.ntp && (
           <LayoutMenuItem icon={AccessTimeIcon} label="Network Time" to="/ntp" />
         )}
-        {features.mqtt && (
-          <LayoutMenuItem icon={DeviceHubIcon} label="MQTT" to="/mqtt" />
-        )}
         {features.security && (
           <LayoutMenuItem icon={LockIcon} label="Security" to="/security" disabled={!authenticatedContext.me.admin} />
         )}

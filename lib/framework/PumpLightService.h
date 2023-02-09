@@ -52,7 +52,7 @@ class LightColors {
     settings.interface_open = 0x008491;
     settings.fault_sensor = 0xFFFF00;
     settings.fault_relay = 0xFF0000;
-    return StateUpdateResult::ERROR
+    return StateUpdateResult::ERROR;
   }
 };
 

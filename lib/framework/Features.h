@@ -13,17 +13,12 @@
 #define FT_SECURITY 1
 #endif
 
-// mqtt feature on by default
-#ifndef FT_MQTT
-#define FT_MQTT 1
-#endif
-
 // ntp feature on by default
 #ifndef FT_NTP
 #define FT_NTP 1
 #endif
 
-// mqtt feature on by default
+// ota feature on by default
 #ifndef FT_OTA
 #define FT_OTA 1
 #endif
