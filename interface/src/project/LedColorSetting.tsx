@@ -12,18 +12,17 @@ import ChromePicker from "react-color/lib/components/chrome/Chrome";
 import CloseIcon from '@mui/icons-material/Close';
 import { SliderPicker } from "react-color";
 
-var finalColor = "";
 var idx = 0;
 const LedColorSetting: FC = () => {
     const isMobile = useMediaQuery('(min-width:600px)');
     const [colorPicker, setColorPicker] = useState<boolean>(false);
-    const [color, setColor] = useState<string>("");
+    const [clr, setClr] = useState<string>("");
 
     const {
         loadData, saving, data, setData, saveData, errorMessage
     } = useRest<LedColors>({ read: PumpApi.readColorSetting, update: PumpApi.updateColorSetting });
 
-    if (!data) {//|| !data?.hasOwnProperty('colors')|| (data?.colors.length != 5)
+    if (!data || !data?.hasOwnProperty('colors') || (data?.colors.length != 6)) {
         return (<FormLoader />);
     }
 
@@ -32,16 +31,16 @@ const LedColorSetting: FC = () => {
     };
 
     const handleSave = () => {
-        // var tmp = { ...data };
-        var tmp = { colors: [132, 1, 132, 1, 1432] };
-        tmp.colors[idx] = Number(finalColor.replace('#', '0x'));
+        var tmp = { ...data };
+        // var tmp = { colors: [132, 1, 132, 1, 1432] };
+        tmp.colors[idx] = Number(clr.replace('#', '0x'));
         setData(tmp);
         setColorPicker(false);
     };
 
     const openColorPicker = (i: number) => {
         idx = i;
-        setColor(`#${data.colors?.[idx].toString(16)}`);
+        setClr(`#${data.colors?.[idx].toString(16)}`);
         setColorPicker(true);
     };
 
@@ -64,7 +63,7 @@ const LedColorSetting: FC = () => {
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-5">
-                {['Ideal', 'Pump Run', 'Interface Open', 'Sensor Fault', 'Relay Fault'].map((val: string, i: number) => {
+                {['Ideal', 'Pump Run', 'Auto Start Disabled', 'Wire Fault', 'Sensor Fault', 'Relay Fault'].map((val: string, i: number) => {
                     return (
                         <><Card variant="outlined" sx={{ borderRadius: 5, display: 'inline-block', width: 170, margin: 2, textAlign: "center", paddingBottom: 1 }} >
                             <CardContent sx={{ textAlign: "center", justifyContent: "center", display: "inline-block", paddingBottom: 0 }}>
@@ -100,12 +99,11 @@ const LedColorSetting: FC = () => {
                 open={colorPicker}
                 onClose={handleClose}>
                 <DialogTitle>Pick a color</DialogTitle>
-                <SliderPicker 
-                    // disableAlpha={true}
-                    // styles={style}
-                    color={color}
-                    onChange={(color) => { setColor(color.hex); }}
-                    onChangeComplete={(color) => { finalColor = color.hex; }}
+                <ChromePicker
+                    disableAlpha={true}
+                    styles={style}
+                    color={clr}
+                    onChange={(color) => { setClr(color.hex); }}
                 />
                 <DialogActions>
                     <Button startIcon={<CloseIcon />} variant="contained" onClick={handleClose} color="primary">Close</Button>

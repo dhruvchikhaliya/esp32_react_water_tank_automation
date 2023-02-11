@@ -24,34 +24,38 @@ class LightColors {
  public:
   uint32_t ideal;
   uint32_t pump_running;
-  uint32_t interface_open;
+  uint32_t auto_start_disabled;
   uint32_t fault_sensor;
   uint32_t fault_relay;
+  uint32_t fault_wire;
 
   static void read(LightColors& settings, JsonObject& root) {
     JsonArray colors = root.createNestedArray("colors");
     colors.add(settings.ideal);
     colors.add(settings.pump_running);
-    colors.add(settings.interface_open);
+    colors.add(settings.auto_start_disabled);
     colors.add(settings.fault_sensor);
     colors.add(settings.fault_relay);
+    colors.add(settings.fault_wire);
   }
 
   static StateUpdateResult update(JsonObject& root, LightColors& settings) {
-    if (root["colors"].is<JsonArray>() && root["colors"].size() == 5) {
-      JsonArray colors = root["root"].as<JsonArray>();
-      settings.ideal = colors[0];
-      settings.pump_running = colors[1];
-      settings.interface_open = colors[2];
-      settings.fault_sensor = colors[3];
-      settings.fault_relay = colors[4];
+    if (root["colors"].is<JsonArray>() && root["colors"].size() == 6) {
+      JsonArray colors = root["colors"].as<JsonArray>();
+      settings.ideal = (uint32_t)colors[0];
+      settings.pump_running = (uint32_t)colors[1];
+      settings.auto_start_disabled = (uint32_t)colors[2];
+      settings.fault_sensor = (uint32_t)colors[3];
+      settings.fault_relay = (uint32_t)colors[4];
+      settings.fault_wire = (uint32_t)colors[5];
       return StateUpdateResult::CHANGED;
     }
     settings.ideal = 0x00FF00;
     settings.pump_running = 0x0000FF;
-    settings.interface_open = 0x008491;
+    settings.auto_start_disabled = 0x008491;
     settings.fault_sensor = 0xFFFF00;
     settings.fault_relay = 0xFF0000;
+    settings.fault_wire = 0xFFC0CB;
     return StateUpdateResult::ERROR;
   }
 };
@@ -66,6 +70,8 @@ class PumpLightService : public StatefulService<LightColors> {
   HttpEndpoint<LightColors> _httpEndpoint;
   FSPersistence<LightColors> _fsPersistence;
   TANK_DETAILS* tank;
+  unsigned long _last_millis;
+  CRGB color;
 };
 
 #endif

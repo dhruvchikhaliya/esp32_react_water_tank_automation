@@ -1,5 +1,5 @@
 #include <ESP8266React.h>
-#include <PumpSettingService.h>
+#include <PumpAutoSettingService.h>
 #include <TankStatusServices.h>
 #include <PumpStartStopPointService.h>
 #include <PumpLightService.h>
@@ -7,7 +7,9 @@
 
 #define SERIAL_BAUD_RATE 115200
 #define SERIAL2_BAUD_RATE 9600
-#define WINDOW_SIZE 30
+#define WINDOW_SIZE 10
+#define START_READ (int)220
+#define TANK_HEIGHT (int)1300
 
 TANK_DETAILS tank;
 
@@ -19,11 +21,11 @@ PumpStartStopPointService pumpStartStopPointService =
     PumpStartStopPointService(&tank, &server, esp8266React.getFS(), esp8266React.getSecurityManager());
 TankStatusService tankStatusService =
     TankStatusService(&tank, &pumpStartStopPointService, &server, esp8266React.getSecurityManager());
-PumpSettingService pumpSettingService = PumpSettingService(&tank,
-                                                           &pumpStartStopPointService,
-                                                           &server,
-                                                           esp8266React.getFS(),
-                                                           esp8266React.getSecurityManager());
+PumpAutoSettingService pumpAutoSettingService = PumpAutoSettingService(&tank,
+                                                                       &pumpStartStopPointService,
+                                                                       &server,
+                                                                       esp8266React.getFS(),
+                                                                       esp8266React.getSecurityManager());
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -41,7 +43,7 @@ void setup() {
   esp8266React.begin();
 
   // Pump
-  pumpSettingService.begin();
+  pumpAutoSettingService.begin();
   pumpStartStopPointService.begin();
   pumpLightService.begin();
 
@@ -60,8 +62,9 @@ void Services(void* pvParameters) {
   while (1) {
     esp8266React.loop();
     tankStatusService.loop();
+    pumpAutoSettingService.loop();
     pumpLightService.loop();
-    vTaskDelay(1000);
+    vTaskDelay(500);
   }
 }
 
@@ -69,41 +72,35 @@ void TankController(void* pvParameters) {
   uint16_t READINGS[WINDOW_SIZE];
   unsigned long timming[WINDOW_SIZE];
   uint8_t idx;
-  uint16_t water_sum = 0;
-  unsigned long prv_millis_relay = millis();
+  int water_sum = 0;
   unsigned long prv_millis_sensor = millis();
   while (1) {
-    if (millis() - timming[idx] >= 1000) {
-      tank.fault_sensor = true;
-      pumpStartStopPointService.stop();
-      while (!Serial2.available()) {
-      }
-      tank.fault_sensor = false;
-    }
-
-    if (millis() - prv_millis_relay >= 5000 && !tank.fault_sensor) {
-      pumpStartStopPointService.loop();
-      prv_millis_relay = millis();
-    }
-
+    pumpStartStopPointService.loop();
     if (Serial2.available()) {
-      water_sum -= READINGS[idx];
-      READINGS[idx] = getDistance();
-      if (READINGS[idx] == 0) {
-        pumpStartStopPointService.stop();
-        tank.fault_sensor = true;
-      } else {
-        timming[idx] = millis();
+      prv_millis_sensor = millis();
+      int reading = getDistance();
+      if (reading >= START_READ && reading <= 2000) {
+        if (reading <= START_READ) {
+          reading = START_READ;
+        }
+        int empty_tank = (int)((reading - 210) * (float)(2000.0 / TANK_HEIGHT));
+        reading = 2000 - ((empty_tank >= 2000) ? 2000 : empty_tank);
+
+        water_sum -= READINGS[idx];
+        READINGS[idx] = reading;
         water_sum += READINGS[idx];
         idx = (idx + 1) % WINDOW_SIZE;
-        tank.level = water_sum / WINDOW_SIZE;
 
-        tank.speed =
-            abs(((tank.prv_level - tank.level) * 2500 * 3.14) / ((timming[idx] - timming[(idx - 1) % WINDOW_SIZE])));
-        Serial.print(tank.level);
-        Serial.print("....");
-        Serial.println(tank.speed);
+        tank.level = (uint16_t)(water_sum / WINDOW_SIZE);
+        tank.fault_sensor = false;
+        tank.fault_wire = false;
+      } else {
+        tank.level = 3000;
+        tank.fault_sensor = true;
       }
+    } else if (millis() - prv_millis_sensor >= 1000 && !tank.fault_wire) {
+      tank.level = 3000;
+      tank.fault_wire = true;
     }
   }
 }

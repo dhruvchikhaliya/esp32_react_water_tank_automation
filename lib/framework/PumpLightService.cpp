@@ -23,23 +23,34 @@ void PumpLightService::begin() {
 }
 
 void PumpLightService::loop() {
-  CRGB color;
+  unsigned long currentMillis = millis();
+  unsigned long run = 1000;
+  if ((unsigned long)(currentMillis - _last_millis) >= run) {
+    _last_millis = currentMillis;
+  }
+
   if (tank->fault_sensor) {
     color = CRGB(_state.fault_sensor);
-  } else if (tank->fault_relay) {
-    color = CRGB(_state.fault_relay);
-  } else if (tank->pump_running) {
-    color = CRGB(_state.pump_running);
-  } else if (!tank->fault_relay) {
-    color = CRGB(_state.ideal);
-  } else if (tank->fault_relay) {
-    color = CRGB(_state.fault_relay);
-  } else if (tank->fault_relay) {
+  }
+  if (tank->fault_wire) {
+    color = CRGB(_state.fault_wire);
+  }
+
+  if (tank->fault_relay) {
     color = CRGB(_state.fault_relay);
   }
-  // color = CRGB(0xff0ff0);
+
+  if (tank->fault_relay) {
+    color = CRGB(_state.auto_start_disabled);
+  }
+
+  if (tank->pump_running) {
+    color = CRGB(_state.pump_running);
+  } else {
+    color = CRGB(_state.ideal);
+  }
+
   led[0] = color;
   FastLED.setBrightness(BRIGHTNESS);
-  // FastLED.setBrightness(0xff);
   FastLED.show();
 }

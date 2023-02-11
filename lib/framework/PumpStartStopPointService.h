@@ -9,24 +9,23 @@
 #include <TankData.h>
 
 #ifndef PUMP_START_POINT
-#define PUMP_START_POINT 10
+#define PUMP_START_POINT 700
 #endif
 
 #ifndef PUMP_STOP_POINT
-#define PUMP_STOP_POINT 40
+#define PUMP_STOP_POINT 1900
 #endif
 
-#define MAX_ALLOWED_RUN_TIME 900 //In Seconds for full tank
+#define MAX_ALLOWED_RUN_TIME 900  // In Seconds for full tank
 #define RELAY_PIN 12
+#define RUN_DELAY_SS 1000
 #define START_STOP_SETTINGS_FILE "/config/startStopPoint.json"
 #define START_STOP_SETTINGS_PATH "/rest/startStopPoint"
 
-
-
 class StartStopPoints {
  public:
-  uint8_t start;
-  uint8_t stop;
+  uint16_t start;
+  uint16_t stop;
 
   static void read(StartStopPoints& settings, JsonObject& root) {
     root["start"] = settings.start;
@@ -42,7 +41,10 @@ class StartStopPoints {
 
 class PumpStartStopPointService : public StatefulService<StartStopPoints> {
  public:
-  PumpStartStopPointService(TANK_DETAILS* tankdetails,AsyncWebServer* server, FS* fs, SecurityManager* securityManager);
+  PumpStartStopPointService(TANK_DETAILS* tankdetails,
+                            AsyncWebServer* server,
+                            FS* fs,
+                            SecurityManager* securityManager);
   void begin();
   void loop();
   void start();
@@ -52,6 +54,7 @@ class PumpStartStopPointService : public StatefulService<StartStopPoints> {
   HttpEndpoint<StartStopPoints> _httpEndpoint;
   FSPersistence<StartStopPoints> _fsPersistence;
   TANK_DETAILS* tank;
+  unsigned long _last_millis;
 };
 
 #endif

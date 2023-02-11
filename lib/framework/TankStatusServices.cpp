@@ -10,23 +10,26 @@ TankStatusService::TankStatusService(TANK_DETAILS* tankdetails,
                server,
                TANK_STATUS_SOCKET_PATH,
                securityManager,
-               AuthenticationPredicates::IS_AUTHENTICATED) {
+               AuthenticationPredicates::IS_AUTHENTICATED),
+    _last_millis(0) {
   _pumpSsService = pumpSsService;
-  addUpdateHandler([&](const String& originId) { onConfigUpdated(); }, false);
   tank = tankdetails;
-}
-
-void TankStatusService::onConfigUpdated() {
-  _state.run ? _pumpSsService->start() : _pumpSsService->stop();
+  _state.tank = tankdetails;
+  _state._pumpSsService = pumpSsService;
 }
 
 void TankStatusService::loop() {
-  update(
-      [&](TankStatus& state) {
-        state.fill_state = tank->level;
-        state.speed = tank->speed;
-        state.run = tank->speed;
-        return StateUpdateResult::CHANGED;
-      },
-      "waterLevel");
+  unsigned long currentMillis = millis();
+  if ((unsigned long)(currentMillis - _last_millis) >= RUN_DELAY_STATUS) {
+    update(
+        [&](TankStatus& state) {
+          // if (state.tank->level != tank->level || state.tank->speed != tank->speed || state.run !=
+          // tank->pump_running) {
+          return StateUpdateResult::CHANGED;
+          // }
+          // return StateUpdateResult::UNCHANGED;
+        },
+        "waterLevel");
+    _last_millis = currentMillis;
+  }
 }

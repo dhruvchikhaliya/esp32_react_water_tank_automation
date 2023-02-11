@@ -20,7 +20,7 @@ const MAX_AUTOSTART = 5;
 const ADD_NEW_TIMER = 100;
 var idx = ADD_NEW_TIMER;
 
-const ToggleSwitch = styled(Switch)(() => ({
+export const ToggleSwitch = styled(Switch)(() => ({
   padding: 8,
   '& .MuiSwitch-track': {
     borderRadius: 22 / 2,
@@ -62,14 +62,14 @@ const PumpTimingSettings: FC = () => {
 
   const saveTimer = (value: SetTime) => {
     if (idx < data.timing.length) {
-      let newArr = [...data.timing];
-      newArr[idx].hour = value.hour;
-      newArr[idx].minute = value.minute;
-      setData({ timing: newArr });
+      var newObj = { ...data };
+      newObj.timing[idx].hour = value.hour;
+      newObj.timing[idx].minute = value.minute;
+      setData(newObj);
     } else {
-      let newArr = [...data.timing];
-      newArr.push({ hour: value.hour, minute: value.minute, weekAndState: 0 });
-      setData({ timing: newArr });
+      var newObj = { ...data };
+      newObj.timing.push({ hour: value.hour, minute: value.minute, weekAndState: 0 });
+      setData(newObj);
     };
     setTimepopup(false);
   };
@@ -120,9 +120,9 @@ const PumpTimingSettings: FC = () => {
   };
 
   const toggleBit = (i: number, bitIdx: number) => {
-    let newArr = [...data.timing];
-    newArr[i].weekAndState ^= 1 << bitIdx;
-    setData({ timing: newArr });
+    var newObj = { ...data };
+    newObj.timing[i].weekAndState ^= 1 << bitIdx;
+    setData(newObj);
   };
 
   const TimerCard: FC<index> = ({ i }) => {
@@ -148,9 +148,9 @@ const PumpTimingSettings: FC = () => {
                   <EditIcon />
                 </IconButton>
                 <IconButton size="small" aria-label="Edit" onClick={() => {
-                  let newArr = [...data.timing];
-                  newArr.splice(i, 1);
-                  setData({ timing: newArr });
+                  var newObj = { ...data };
+                  newObj.timing.splice(i, 1);
+                  setData(newObj);
                 }}>
                   <DeleteIcon />
                 </IconButton>

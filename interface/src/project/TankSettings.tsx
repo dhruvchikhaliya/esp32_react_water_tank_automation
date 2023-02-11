@@ -1,12 +1,9 @@
 import { Accordion, AccordionSummary, Typography, Fab, Slider, Button } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
-import { FormLoader, SectionContent, ValidatedTextField } from '../components';
+import { FC } from 'react';
+import { SectionContent, ValidatedTextField } from '../components';
 import PumpTimingSettings from './PumpTimingSettings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
-import { useRest } from '../utils';
-import * as PumpApi from "../api/pump";
 import StartStopPointSettings from './StartStopPointSettings';
 import LedColorSetting from './LedColorSetting';
 
@@ -41,11 +38,6 @@ const TankSettings: FC = () => {
           >
             <Typography>LED color settings</Typography>
           </AccordionSummary>
-          {/* <div className='w-full text-right'>
-            <Fab sx={{ margin: 1.5 }} size="small" color="primary" aria-label="add" >
-              <AddIcon />
-            </Fab>
-          </div> */}
           <LedColorSetting />
         </Accordion>
 

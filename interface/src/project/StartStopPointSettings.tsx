@@ -6,12 +6,8 @@ import { Slider, Button } from "@mui/material";
 import { FormLoader } from "../components";
 import SaveIcon from '@mui/icons-material/Save';
 
-function valuetext(value: number) {
-    return `${value}°C`;
-}
-
 const marks = Array.from({ length: 11 }, (_, i) => ({
-    value: (i * 10),
+    value: (i * 200),
     label: `${i * 200}L`,
 }));
 
@@ -39,13 +35,13 @@ const StartStopPointSettings: FC = () => {
             <Slider
                 sx={{ height: 500, width: 200 }}
                 getAriaLabel={() => 'StopStartSetting'}
-                getAriaValueText={valuetext}
-                // defaultValue={[data.start, data.stop]}
                 value={[data.start, data.stop]}
                 onChange={handleChanges}
                 valueLabelDisplay="off"
                 marks={marks}
-                step={null}
+                step={10}
+                min={0}
+                max={2000}
                 orientation="vertical"
             />
         </div>

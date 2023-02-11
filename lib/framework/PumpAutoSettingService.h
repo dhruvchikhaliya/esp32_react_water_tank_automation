@@ -1,5 +1,5 @@
-#ifndef PumpSettingService_h
-#define PumpSettingService_h
+#ifndef PumpAutoSettingService_h
+#define PumpAutoSettingService_h
 
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
@@ -10,6 +10,7 @@
 #include <PumpStartStopPointService.h>
 
 #define MAX_AUTOSTART 5
+#define RUN_DELAY_AUTO_START 15000
 #define TIMING_DETAILS_SETTINGS_FILE "/config/autoStartTiming.json"
 #define TIMING_DETAILS_SETTINGS_PATH "/rest/autoStartTiming"
 
@@ -28,8 +29,11 @@ class TimeDetails {
 class PumpAutoStart {
  public:
   std::list<TimeDetails> timings;
+  TANK_DETAILS* tank;
   static void read(PumpAutoStart& settings, JsonObject& root) {
     JsonArray timings = root.createNestedArray("timing");
+    root["enabled"] = settings.tank->auto_start;
+
     for (TimeDetails timing : settings.timings) {
       JsonObject timeRoot = timings.createNestedObject();
       timeRoot["hour"] = timing.hour;
@@ -55,13 +59,13 @@ class PumpAutoStart {
   }
 };
 
-class PumpSettingService : public StatefulService<PumpAutoStart> {
+class PumpAutoSettingService : public StatefulService<PumpAutoStart> {
  public:
-  PumpSettingService(TANK_DETAILS* tankdetails,
-                     PumpStartStopPointService* pumpSsService,
-                     AsyncWebServer* server,
-                     FS* fs,
-                     SecurityManager* securityManager);
+  PumpAutoSettingService(TANK_DETAILS* tankdetails,
+                         PumpStartStopPointService* pumpSsService,
+                         AsyncWebServer* server,
+                         FS* fs,
+                         SecurityManager* securityManager);
   void begin();
   void loop();
 
@@ -70,6 +74,7 @@ class PumpSettingService : public StatefulService<PumpAutoStart> {
   FSPersistence<PumpAutoStart> _fsPersistence;
   PumpStartStopPointService* _pumpSsService;
   TANK_DETAILS* tank;
+  unsigned long _last_millis;
 };
 
 #endif

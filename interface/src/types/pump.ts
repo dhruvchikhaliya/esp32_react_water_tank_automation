@@ -15,6 +15,7 @@ interface AutoStartValues {
 }
 export interface AutoStartTiming {
   timing: AutoStartValues[];
+  enabled: boolean;
 }
 
 export interface StopPoints {

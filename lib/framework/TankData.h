@@ -4,20 +4,26 @@
 class TANK_DETAILS {
  public:
   int level;
-  float speed;
+  int speed;
   int prv_level;
   bool pump_running;
   bool fault_relay;
   bool fault_sensor;
+  bool fault_wire;
+  bool auto_start;
+  bool ground_reserve;
   unsigned long running_since;
 
  public:
   TANK_DETAILS(int level = 0,
-               float speed = 0,
+               int speed = 0,
                int prv_level = 0,
                bool pump_running = false,
                bool fault_relay = false,
                bool fault_sensor = false,
+               bool fault_wire = false,
+               bool auto_start = true,
+               bool ground_reserve = true,
                unsigned long running_since = 0) :
       level(level),
       speed(speed),
@@ -25,6 +31,9 @@ class TANK_DETAILS {
       pump_running(pump_running),
       fault_relay(fault_relay),
       fault_sensor(fault_sensor),
+      fault_wire(fault_wire),
+      auto_start(auto_start),
+      ground_reserve(ground_reserve),
       running_since(running_since) {
   }
 };
