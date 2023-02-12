@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useContext } from 'react';
 import { FormLoader } from '../components';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
@@ -15,6 +15,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { AutoStartTiming, index, SetTime } from '../types';
 import { useRest } from '../utils';
 import * as PumpApi from "../api/pump";
+import { useSnackbar } from 'notistack';
+import { AuthenticatedContext } from '../contexts/authentication';
 
 const MAX_AUTOSTART = 5;
 const ADD_NEW_TIMER = 100;
@@ -44,6 +46,8 @@ export const ToggleSwitch = styled(Switch)(() => ({
 const PumpTimingSettings: FC = () => {
   const isMobile = useMediaQuery('(min-width:600px)');
   const [timepopup, setTimepopup] = useState<boolean>(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const authenticatedContext = useContext(AuthenticatedContext);
   const {
     loadData, saving, data, setData, saveData, errorMessage
   } = useRest<AutoStartTiming>({ read: PumpApi.readAutoStartTiming, update: PumpApi.updateAutoStartTiming });
@@ -51,10 +55,6 @@ const PumpTimingSettings: FC = () => {
   if (!data || !data?.hasOwnProperty('timing') || data.timing.constructor != Array) {
     return (<FormLoader />);
   }
-
-  // if (data && !data?.hasOwnProperty('timing')) {
-  //   setData({ timing: [] });
-  // }
 
   const closeTimerSetBox = () => {
     setTimepopup(false);
@@ -174,6 +174,10 @@ const PumpTimingSettings: FC = () => {
   };
 
   const validateAndSave = async () => {
+    if (!authenticatedContext.me.admin) {
+      enqueueSnackbar("Please login as admin", { variant: "warning" });
+      return;
+    }
     await saveData();
   };
 
@@ -187,7 +191,7 @@ const PumpTimingSettings: FC = () => {
       <div className='w-full text-right'>
         <Button
           startIcon={<SaveIcon />}
-          // disabled={saving || noAdminConfigured()}
+          disabled={saving}
           variant="contained"
           color="primary"
           type="submit"

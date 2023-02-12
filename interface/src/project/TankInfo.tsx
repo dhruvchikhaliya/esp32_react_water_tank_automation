@@ -12,14 +12,14 @@ import { AuthenticatedContext } from '../contexts/authentication';
 
 const TankInfo: FC = () => {
   useLayoutTitle("Water Tank");
-  const { routerTab } = useRouterTab(); 
+  const { routerTab } = useRouterTab();
   const authenticatedContext = useContext(AuthenticatedContext);
 
   return (
     <>
       <RouterTabs value={routerTab}>
         <Tab value="status" label="status" />
-        <Tab value="settings" label="settings"  disabled={!authenticatedContext.me.admin}/>
+        <Tab value="settings" label="settings" />
       </RouterTabs>
       <Routes>
         <Route path="status" element={<TankStatus />} />

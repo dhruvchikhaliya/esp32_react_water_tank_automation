@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useState, useContext } from "react";
 import { LedColors } from "../types";
 import { useRest } from "../utils";
 import * as PumpApi from "../api/pump";
@@ -10,13 +10,16 @@ import Chrome from "react-color/lib/components/chrome/Chrome";
 import { bgcolor, height } from "@mui/system";
 import ChromePicker from "react-color/lib/components/chrome/Chrome";
 import CloseIcon from '@mui/icons-material/Close';
-import { SliderPicker } from "react-color";
+import { useSnackbar } from 'notistack';
+import { AuthenticatedContext } from '../contexts/authentication';
 
 var idx = 0;
 const LedColorSetting: FC = () => {
     const isMobile = useMediaQuery('(min-width:600px)');
     const [colorPicker, setColorPicker] = useState<boolean>(false);
     const [clr, setClr] = useState<string>("");
+    const { enqueueSnackbar } = useSnackbar();
+    const authenticatedContext = useContext(AuthenticatedContext);
 
     const {
         loadData, saving, data, setData, saveData, errorMessage
@@ -45,8 +48,13 @@ const LedColorSetting: FC = () => {
     };
 
     const validateAndSave = async () => {
+        if (!authenticatedContext.me.admin) {
+            enqueueSnackbar("Please login as admin", { variant: "warning" });
+            return;
+        }
         await saveData();
     };
+
     const style = {
         default: {
             body: {
@@ -86,11 +94,11 @@ const LedColorSetting: FC = () => {
             <div className='w-full text-right'>
                 <Button sx={{ margin: 1.5 }}
                     startIcon={<SaveIcon />}
-                    // disabled={saving || noAdminConfigured()}
+                    disabled={saving}
                     variant="contained"
                     color="primary"
                     type="submit"
-                    onClick={async () => { await saveData(); }}
+                    onClick={validateAndSave}
                 >Save</Button>
             </div>
 

@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useContext } from 'react';
 import React from 'react';
 import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress, Stack, Button, Switch, Checkbox, ListItemAvatar, Avatar, Divider, Theme, useTheme, CardActions, FormControlLabel, ListItemButton, ListItemIcon } from '@mui/material';
 
@@ -23,6 +23,7 @@ import { ToggleSwitch } from './PumpTimingSettings';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import PersonIcon from '@mui/icons-material/Person';
 import WaterIcon from '@mui/icons-material/Water';
+import { AuthenticatedContext } from '../contexts/authentication';
 
 export const LIGHT_SETTINGS_WEBSOCKET_URL = WEB_SOCKET_ROOT + "tankStatus";
 
@@ -31,6 +32,7 @@ var timeStamp = 0;
 const TankStatus: FC = () => {
   const { connected, updateData, data } = useWs<TankStatusDetails>(LIGHT_SETTINGS_WEBSOCKET_URL);
   const { enqueueSnackbar } = useSnackbar();
+  const authenticatedContext = useContext(AuthenticatedContext);
   const theme = useTheme();
 
   useEffect(() => {
@@ -51,7 +53,15 @@ const TankStatus: FC = () => {
     }
   };
 
+  const showGuestError = () => {
+    enqueueSnackbar("Please login as admin", { variant: "warning" });
+  };
+  
   const changeAutoMode = () => {
+    if (!authenticatedContext.me.admin) {
+      showGuestError();
+      return;
+    }
     var temp = { ...data };
     temp.automatic = !temp.automatic;
     updateData(temp);
@@ -67,7 +77,9 @@ const TankStatus: FC = () => {
     return (data.fault_relay || data.fault_sensor || data.fault_wire || !data.ground_reserve);
   };
 
-  const updateFormValue = updateValue(updateData);
+
+  const updateFormValue = authenticatedContext.me.admin ? updateValue(updateData) : showGuestError;
+
   return (
     <SectionContent title='Information' titleGutter>
       <div className="grid grid-cols-1 md:grid-cols-3">
