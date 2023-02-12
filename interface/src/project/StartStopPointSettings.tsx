@@ -35,9 +35,9 @@ const StartStopPointSettings: FC = () => {
             <Slider
                 sx={{ height: 500, width: 200 }}
                 getAriaLabel={() => 'StopStartSetting'}
+                valueLabelDisplay="auto"
                 value={[data.start, data.stop]}
                 onChange={handleChanges}
-                valueLabelDisplay="off"
                 marks={marks}
                 step={10}
                 min={0}
