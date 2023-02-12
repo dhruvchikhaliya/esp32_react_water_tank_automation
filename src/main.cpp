@@ -33,6 +33,14 @@ TaskHandle_t Task2;
 void Services(void* pvParameters);
 void TankController(void* pvParameters);
 int getDistance();
+// Read sensor---------------------------------
+void readSensor();
+uint16_t READINGS[WINDOW_SIZE];
+unsigned long timming[WINDOW_SIZE];
+uint8_t idx;
+int water_sum = 0;
+unsigned long prv_millis_sensor = millis();
+//--------------------------------------------
 
 void setup() {
   // start serial and filesystem
@@ -69,39 +77,46 @@ void Services(void* pvParameters) {
 }
 
 void TankController(void* pvParameters) {
-  uint16_t READINGS[WINDOW_SIZE];
-  unsigned long timming[WINDOW_SIZE];
-  uint8_t idx;
-  int water_sum = 0;
-  unsigned long prv_millis_sensor = millis();
   while (1) {
-    pumpStartStopPointService.loop();
-    if (Serial2.available()) {
-      prv_millis_sensor = millis();
-      int reading = getDistance();
-      if (reading >= START_READ && reading <= 2000) {
-        if (reading <= START_READ) {
-          reading = START_READ;
-        }
-        int empty_tank = (int)((reading - 210) * (float)(2000.0 / TANK_HEIGHT));
-        reading = 2000 - ((empty_tank >= 2000) ? 2000 : empty_tank);
+    if (tank.automatic) {
+      pumpStartStopPointService.loop();
+    }
+    readSensor();
+  }
+}
 
-        water_sum -= READINGS[idx];
-        READINGS[idx] = reading;
-        water_sum += READINGS[idx];
-        idx = (idx + 1) % WINDOW_SIZE;
+void readSensor() {
+  if (Serial2.available()) {
+    int reading = getDistance();
+    if (reading >= START_READ && reading <= 2000) {
+      if (reading <= START_READ) {
+        reading = START_READ;
+      }
+      int empty_tank = (int)((reading - 210) * (float)(2000.0 / TANK_HEIGHT));
+      reading = 2000 - ((empty_tank >= 2000) ? 2000 : empty_tank);
 
-        tank.level = (uint16_t)(water_sum / WINDOW_SIZE);
+      water_sum -= READINGS[idx];
+      READINGS[idx] = reading;
+      water_sum += READINGS[idx];
+      idx = (idx + 1) % WINDOW_SIZE;
+
+      tank.level = (uint16_t)(water_sum / WINDOW_SIZE);
+      if (tank.fault_sensor) {
         tank.fault_sensor = false;
-        tank.fault_wire = false;
-      } else {
-        tank.level = 3000;
+      }
+    } else {
+      tank.level = 3000;
+      if (!tank.fault_sensor) {
         tank.fault_sensor = true;
       }
-    } else if (millis() - prv_millis_sensor >= 1000 && !tank.fault_wire) {
-      tank.level = 3000;
-      tank.fault_wire = true;
     }
+    if (tank.fault_wire) {
+      tank.fault_wire = false;
+    }
+    prv_millis_sensor = millis();
+  } else if (millis() - prv_millis_sensor >= 1000 && !tank.fault_wire) {
+    tank.level = 3000;
+    tank.fault_wire = true;
   }
 }
 

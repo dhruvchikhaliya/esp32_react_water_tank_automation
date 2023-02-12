@@ -15,7 +15,7 @@ export function Arced(props: ArcedProps) {
     startAngle: START_ANGLE,
     endAngle: END_ANGLE,
     numTicks: 21,
-    diameter: 120
+    diameter: 170
   });
 
   const needle = gauge.getNeedleProps({

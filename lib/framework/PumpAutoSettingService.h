@@ -10,7 +10,7 @@
 #include <PumpStartStopPointService.h>
 
 #define MAX_AUTOSTART 5
-#define RUN_DELAY_AUTO_START 15000
+#define RUN_DELAY_AUTO_START 2000
 #define TIMING_DETAILS_SETTINGS_FILE "/config/autoStartTiming.json"
 #define TIMING_DETAILS_SETTINGS_PATH "/rest/autoStartTiming"
 

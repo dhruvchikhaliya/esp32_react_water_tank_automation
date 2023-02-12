@@ -7,4 +7,8 @@ export interface TankStatusDetails {
   fault_relay: boolean;
   auto_start: boolean;
   running_since: number;
+  automatic: boolean;
+  ground_reserve: boolean;
+  start_p: number;
+  stop_p: number;
 }

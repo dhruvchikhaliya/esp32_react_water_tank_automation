@@ -14,6 +14,7 @@ PumpStartStopPointService::PumpStartStopPointService(TANK_DETAILS* tankdetails,
     _fsPersistence(StartStopPoints::read, StartStopPoints::update, this, fs, START_STOP_SETTINGS_FILE),
     _last_millis(0) {
   tank = tankdetails;
+  _state.tank = tankdetails;
 }
 
 void PumpStartStopPointService::begin() {
@@ -21,31 +22,44 @@ void PumpStartStopPointService::begin() {
   _fsPersistence.readFromFS();
 }
 
-void PumpStartStopPointService::stop() {
-  if (tank->level >= _state.start && !tank->pump_running) {
-    digitalWrite(RELAY_PIN, LOW);
-    tank->pump_running = false;
-  }
-}
-
 void PumpStartStopPointService::start() {
-  if (tank->level < _state.stop && !tank->pump_running && !tank->ground_reserve) {
+  if (tank->level < _state.stop && !tank->pump_running && tank->ground_reserve &&
+      !(tank->fault_relay || tank->fault_sensor || tank->fault_wire)) {
     digitalWrite(RELAY_PIN, HIGH);
     tank->running_since = millis();
     tank->pump_running = true;
   }
 }
 
+void PumpStartStopPointService::stop() {
+  if (tank->pump_running) {
+    digitalWrite(RELAY_PIN, LOW);
+    tank->pump_running = false;
+  }
+}
+
+void PumpStartStopPointService::forceStart() {
+  digitalWrite(RELAY_PIN, HIGH);
+  tank->running_since = millis();
+  tank->pump_running = true;
+}
+
+void PumpStartStopPointService::forceStop() {
+  digitalWrite(RELAY_PIN, LOW);
+  tank->pump_running = false;
+}
+
 void PumpStartStopPointService::loop() {
   if (!tank->ground_reserve) {
     digitalWrite(RELAY_PIN, LOW);
+    tank->pump_running = false;
     return;
   }
 
   unsigned long currentMillis = millis();
   if ((unsigned long)(currentMillis - _last_millis) >= RUN_DELAY_SS) {
     if (tank->fault_relay || tank->fault_sensor || tank->fault_wire) {
-      stop();
+      forceStop();
     } else {
       if (tank->level <= _state.start && !tank->pump_running) {
         digitalWrite(RELAY_PIN, HIGH);

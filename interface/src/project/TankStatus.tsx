@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import React from 'react';
-import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress, Stack, Button, Switch, Checkbox, ListItemAvatar, Avatar, Divider, Theme, useTheme, CardActions } from '@mui/material';
+import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress, Stack, Button, Switch, Checkbox, ListItemAvatar, Avatar, Divider, Theme, useTheme, CardActions, FormControlLabel, ListItemButton, ListItemIcon } from '@mui/material';
 
 import { BlockFormControlLabel, FormLoader, SectionContent } from '../components';
 import { Arced } from '../gauge/arced';
@@ -20,6 +20,9 @@ import ElectricMeterIcon from '@mui/icons-material/ElectricMeter';
 import PowerIcon from '@mui/icons-material/Power';
 import PowerOffIcon from '@mui/icons-material/PowerOff';
 import { ToggleSwitch } from './PumpTimingSettings';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
+import PersonIcon from '@mui/icons-material/Person';
+import WaterIcon from '@mui/icons-material/Water';
 
 export const LIGHT_SETTINGS_WEBSOCKET_URL = WEB_SOCKET_ROOT + "tankStatus";
 
@@ -30,6 +33,9 @@ const TankStatus: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
 
+  useEffect(() => {
+    updateValue(updateData);
+  }, [data]);
   if (!connected || !data) {
     return (<FormLoader message="Connecting to WebSocket…" />);
   }
@@ -37,23 +43,18 @@ const TankStatus: FC = () => {
   const avtarStatusHighlight = (status: boolean, theme: Theme) => {
     switch (status) {
       case true:
-        return theme.palette.secondary.main;
+        return theme.palette.error.main;
       case false:
         return theme.palette.success.main;
       default:
-        return theme.palette.error.main;
+        return theme.palette.secondary.main;
     }
   };
 
-  const sendStartStopRequest = () => {
-    // var elapsedTime = Math.floor(Date.now() / 1000) - timeStamp;
-    // if (elapsedTime <= 5) {
-    //   enqueueSnackbar(`Too frequent clicks. Chill`, { variant: 'info' });
-    //   return;
-    // }
-    timeStamp = Math.floor(Date.now() / 1000);
-    data.run = true;
-
+  const changeAutoMode = () => {
+    var temp = { ...data };
+    temp.automatic = !temp.automatic;
+    updateData(temp);
   };
 
   const secondsToString = (second: number): string => {
@@ -63,45 +64,67 @@ const TankStatus: FC = () => {
   };
 
   const fault = (): boolean => {
-    return (data.fault_relay || data.fault_sensor || data.fault_wire);
+    return (data.fault_relay || data.fault_sensor || data.fault_wire || !data.ground_reserve);
   };
 
   const updateFormValue = updateValue(updateData);
   return (
     <SectionContent title='Information' titleGutter>
-      {/* <BlockFormControlLabel
-        control={
-          <Switch
-            name="run"
-            checked={data.run}
-            onChange={updateFormValue}
-            color="primary"
-          />
-        }
-        label="LED State?"
-      /> */}
       <div className="grid grid-cols-1 md:grid-cols-3">
-
         <Card variant="outlined" sx={{ borderRadius: 5, margin: 2 }} >
           <CardContent sx={{ padding: 0 }} >
             <List>
-              <ListItem >
+              <ListItem
+                secondaryAction={
+                  <ToggleSwitch
+                    name="run"
+                    checked={data.run}
+                    onChange={updateFormValue}
+                    disabled={data.automatic && (fault() || !(data.water_level > data.start_p && data.water_level < data.stop_p))}
+                  />
+                }>
                 <ListItemAvatar>
                   <Avatar sx={{ bgcolor: avtarStatusHighlight(false, theme) }}>
                     {data.run ? <PowerIcon /> : <PowerOffIcon />}
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Pump Status" secondary={data.run ? `Running | ${secondsToString(data.running_since)}` : "Ideal"} />
+                <ListItemText primary="Pump" secondary={data.run ? `Running | ${secondsToString(data.running_since)}` : "Ideal"} />
+                {/* <Button
+                  size='small'
+                  variant="outlined"
+                  // startIcon={data.automatic ? <PersonOffIcon /> : <PersonIcon />}
+                  color={data.automatic ? "success" : "secondary"}
+                  onClick={changeAutoMode}>
+                  {data.automatic ? "Auto" : "Manual"}
+                </Button> */}
 
-                <ToggleSwitch
-                  name="run"
-                  checked={data.run}
-                  onChange={updateFormValue}
-                  disabled={fault()}
-                />
               </ListItem>
               <Divider variant="fullWidth" component="li" />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+                <div>
+                  <ListItemButton onClick={changeAutoMode}>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: theme.palette.success.main }}>
+                        {data.automatic ? <PersonOffIcon /> : <PersonIcon />}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Control" secondary={data.automatic ? "Auto" : "Manual"} />
+                  </ListItemButton>
+                  <Divider variant="fullWidth" component="li" />
+                </div>
+                <div>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: avtarStatusHighlight(!data.ground_reserve, theme) }}>
+                        <WaterIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Ground" secondary={data.ground_reserve ? "Good" : "Empty"} />
+                  </ListItem>
+                  <Divider variant="fullWidth" component="li" />
+                </div>
+
                 <div>
                   <ListItem>
                     <ListItemAvatar>
@@ -120,7 +143,7 @@ const TankStatus: FC = () => {
                         <ElectricMeterIcon />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary="Relay" secondary={data.fault_relay ? "" : "Faulty"} />
+                    <ListItemText primary="Relay" secondary={data.fault_relay ? "Faulty" : "Working"} />
                   </ListItem>
                   <Divider variant="fullWidth" component="li" />
 

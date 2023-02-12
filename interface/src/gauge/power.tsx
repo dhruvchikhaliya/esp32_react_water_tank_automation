@@ -13,7 +13,7 @@ export function Power(props: PowerProps) {
     startAngle: 90,
     endAngle: 270,
     numTicks: 21,
-    diameter: 200
+    diameter: 270
   });
 
   const needle = gauge.getNeedleProps({

@@ -22,15 +22,32 @@ class TankStatus {
     root["fault_wire"] = settings.tank->fault_wire;
     root["fault_relay"] = settings.tank->fault_relay;
     root["auto_start"] = settings.tank->auto_start;
-    root["running_since"] = (int)((millis() - settings.tank->running_since) / 1000);
+    root["automatic"] = settings.tank->automatic;
+    root["running_since"] = settings.tank->pump_running ? (int)((millis() - settings.tank->running_since) / 1000) : 0;
+    root["ground_reserve"] = settings.tank->ground_reserve;
+    root["start_p"] = settings.tank->start_p;
+    root["stop_p"] = settings.tank->stop_p;
   }
 
   static StateUpdateResult update(JsonObject& root, TankStatus& tankState) {
     bool run_n = root["run"];
-    if (tankState.tank->pump_running != run_n) {
-      run_n ? tankState._pumpSsService->start() : tankState._pumpSsService->stop();
-      // tankState.run = run_n;
+    bool automatic = root["automatic"];
+    bool changed = false;
+    if (tankState.tank->automatic != automatic) {
+      tankState.tank->automatic = automatic;
+      changed = true;
       return StateUpdateResult::CHANGED;
+    }
+    if (tankState.tank->pump_running != run_n) {
+      if (tankState.tank->automatic) {
+        run_n ? tankState._pumpSsService->start() : tankState._pumpSsService->stop();
+      } else {
+        run_n ? tankState._pumpSsService->forceStart() : tankState._pumpSsService->forceStop();
+      }
+      changed = true;
+      return StateUpdateResult::CHANGED;
+    }
+    if (changed) {
     }
     return StateUpdateResult::UNCHANGED;
   }

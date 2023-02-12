@@ -29,9 +29,7 @@ void PumpAutoSettingService::loop() {
     _last_millis = currentMillis;
     time_t now = time(nullptr);
     struct tm* t = localtime(&now);
-    Serial.print("Year:");
-    Serial.print(t->tm_year);
-    if (t->tm_year < 2022 || tank->fault_relay || tank->fault_sensor || tank->fault_wire) {
+    if (t->tm_year < (2022 - 1900) || tank->fault_relay || tank->fault_sensor || tank->fault_wire) {
       tank->auto_start = false;
       return;
     }

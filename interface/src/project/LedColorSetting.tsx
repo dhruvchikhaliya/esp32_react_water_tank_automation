@@ -63,7 +63,7 @@ const LedColorSetting: FC = () => {
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-5">
-                {['Ideal', 'Pump Run', 'Auto Start Disabled', 'Wire Fault', 'Sensor Fault', 'Relay Fault'].map((val: string, i: number) => {
+                {['Ideal', 'Pump Run', 'Auto Start', 'Wire Fault', 'Sensor Fault', 'Relay Fault'].map((val: string, i: number) => {
                     return (
                         <><Card variant="outlined" sx={{ borderRadius: 5, display: 'inline-block', width: 170, margin: 2, textAlign: "center", paddingBottom: 1 }} >
                             <CardContent sx={{ textAlign: "center", justifyContent: "center", display: "inline-block", paddingBottom: 0 }}>

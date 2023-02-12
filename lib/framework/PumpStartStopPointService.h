@@ -26,6 +26,7 @@ class StartStopPoints {
  public:
   uint16_t start;
   uint16_t stop;
+  TANK_DETAILS* tank;
 
   static void read(StartStopPoints& settings, JsonObject& root) {
     root["start"] = settings.start;
@@ -35,6 +36,8 @@ class StartStopPoints {
   static StateUpdateResult update(JsonObject& root, StartStopPoints& settings) {
     settings.start = root["start"] | PUMP_START_POINT;
     settings.stop = root["stop"] | PUMP_STOP_POINT;
+    settings.tank->start_p = settings.start;
+    settings.tank->stop_p = settings.stop;
     return StateUpdateResult::CHANGED;
   }
 };
@@ -49,6 +52,8 @@ class PumpStartStopPointService : public StatefulService<StartStopPoints> {
   void loop();
   void start();
   void stop();
+  void forceStart();
+  void forceStop();
 
  private:
   HttpEndpoint<StartStopPoints> _httpEndpoint;
