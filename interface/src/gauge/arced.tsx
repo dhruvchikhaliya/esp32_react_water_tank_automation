@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material";
 import React from "react";
 import { useGauge } from "use-gauge";
 
@@ -9,6 +10,7 @@ const START_ANGLE = 45;
 const END_ANGLE = 315;
 
 export function Arced(props: ArcedProps) {
+  const theme = useTheme();
   const { value } = props;
   const gauge = useGauge({
     domain: [0, 100],
@@ -46,7 +48,7 @@ export function Arced(props: ArcedProps) {
               endAngle: gauge.valueToAngle(value)
             })}
             fill="none"
-            className="stroke-green-400"
+            stroke={theme.palette.primary.main}
             strokeLinecap="round"
             strokeWidth={20}
           />

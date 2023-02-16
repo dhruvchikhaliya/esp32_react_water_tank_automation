@@ -34,15 +34,14 @@ void PumpAutoSettingService::loop() {
       return;
     }
     tank->auto_start = true;
+    uint8_t i = 0;
     for (TimeDetails timing : _state.timings) {
-      Serial.print(" Hour:");
-      Serial.print(t->tm_hour);
-      Serial.print(" Minute:");
-      Serial.print(t->tm_min);
-      if (!tank->pump_running && (timing.weekAndState & (1 << 7)) && (timing.weekAndState & (1 >> t->tm_wday)) &&
-          timing.hour == t->tm_hour && timing.minute == t->tm_min) {
+      if (marked[i] != t->tm_wday && !tank->pump_running && (timing.weekAndState & (1 << 7)) &&
+          (timing.weekAndState & (1 >> t->tm_wday)) && timing.hour == t->tm_hour && timing.minute == t->tm_min) {
         _pumpSsService->start();
+        marked[i] = t->tm_wday;
       }
+      i++;
     }
   }
 }

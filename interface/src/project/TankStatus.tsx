@@ -47,7 +47,7 @@ const TankStatus: FC = () => {
       case true:
         return theme.palette.error.main;
       case false:
-        return theme.palette.success.main;
+        return theme.palette.primary.main;
       default:
         return theme.palette.secondary.main;
     }
@@ -56,7 +56,7 @@ const TankStatus: FC = () => {
   const showGuestError = () => {
     enqueueSnackbar("Please login as admin", { variant: "warning" });
   };
-  
+
   const changeAutoMode = () => {
     if (!authenticatedContext.me.admin) {
       showGuestError();
@@ -117,7 +117,7 @@ const TankStatus: FC = () => {
                 <div>
                   <ListItemButton onClick={changeAutoMode}>
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: theme.palette.success.main }}>
+                      <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
                         {data.automatic ? <PersonOffIcon /> : <PersonIcon />}
                       </Avatar>
                     </ListItemAvatar>
@@ -212,10 +212,10 @@ const TankStatus: FC = () => {
             {(!connected || !data) ? <FormLoader message="Connecting to WebSocket…" /> :
               <>
                 <div className="mt-4">
-                  <Power value={data.speed} />
+                  <Power value={data.run ? data.speed : 0} />
                 </div>
                 <Typography color="textprimary" align='center' sx={{ marginTop: 2 }}>
-                  {data.speed} l/m
+                  {data.run ? data.speed : 0} l/m
                 </Typography></>}
           </CardContent>
         </Card>

@@ -75,6 +75,7 @@ class PumpAutoSettingService : public StatefulService<PumpAutoStart> {
   PumpStartStopPointService* _pumpSsService;
   TANK_DETAILS* tank;
   unsigned long _last_millis;
+  int marked[MAX_AUTOSTART];
 };
 
 #endif

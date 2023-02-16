@@ -16,7 +16,7 @@
 #define PUMP_STOP_POINT 1900
 #endif
 
-#define MAX_ALLOWED_RUN_TIME 900  // In Seconds for full tank
+#define FULL_TANK_TIME 90000  // In Seconds
 #define RELAY_PIN 12
 #define RUN_DELAY_SS 1000
 #define START_STOP_SETTINGS_FILE "/config/startStopPoint.json"
@@ -54,6 +54,7 @@ class PumpStartStopPointService : public StatefulService<StartStopPoints> {
   void stop();
   void forceStart();
   void forceStop();
+  bool fault();
 
  private:
   HttpEndpoint<StartStopPoints> _httpEndpoint;

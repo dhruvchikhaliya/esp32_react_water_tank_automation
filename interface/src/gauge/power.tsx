@@ -9,10 +9,10 @@ interface PowerProps {
 export function Power(props: PowerProps) {
   const { value } = props;
   const gauge = useGauge({
-    domain: [0, 100],
+    domain: [0, 160],
     startAngle: 90,
     endAngle: 270,
-    numTicks: 21,
+    numTicks: 33,
     diameter: 270
   });
 

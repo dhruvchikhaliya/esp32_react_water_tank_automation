@@ -22,12 +22,13 @@ void PumpStartStopPointService::begin() {
   _fsPersistence.readFromFS();
 }
 
+bool PumpStartStopPointService::fault() {
+  return (tank->fault_relay || tank->fault_sensor || tank->fault_wire);
+}
+
 void PumpStartStopPointService::start() {
-  if (tank->level < _state.stop && !tank->pump_running && tank->ground_reserve &&
-      !(tank->fault_relay || tank->fault_sensor || tank->fault_wire)) {
-    digitalWrite(RELAY_PIN, HIGH);
-    tank->running_since = millis();
-    tank->pump_running = true;
+  if (tank->level < _state.stop && !tank->pump_running && tank->ground_reserve && !fault()) {
+    forceStart();
   }
 }
 
@@ -41,6 +42,7 @@ void PumpStartStopPointService::stop() {
 void PumpStartStopPointService::forceStart() {
   digitalWrite(RELAY_PIN, HIGH);
   tank->running_since = millis();
+  tank->run_till = tank->level * FULL_TANK_TIME / 2000;
   tank->pump_running = true;
 }
 
@@ -58,26 +60,24 @@ void PumpStartStopPointService::loop() {
 
   unsigned long currentMillis = millis();
   if ((unsigned long)(currentMillis - _last_millis) >= RUN_DELAY_SS) {
-    if (tank->fault_relay || tank->fault_sensor || tank->fault_wire) {
+    if (fault()) {
       forceStop();
     } else {
-      if (tank->level <= _state.start && !tank->pump_running) {
-        digitalWrite(RELAY_PIN, HIGH);
-        tank->running_since = millis();
-        tank->pump_running = true;
-      }
-      if (tank->level >= _state.stop && tank->pump_running) {
-        digitalWrite(RELAY_PIN, LOW);
-        tank->pump_running = false;
-      }
-      if (tank->pump_running && (unsigned long)((millis() - tank->running_since) / 1000) >= MAX_ALLOWED_RUN_TIME) {
-        digitalWrite(RELAY_PIN, LOW);
-        if (tank->level <= _state.stop) {
-          tank->ground_reserve = false;
-          tank->pump_running = false;
-        } else {
-          tank->fault_relay = true;
+      if (tank->pump_running) {
+        if (tank->level >= _state.stop) {
+          forceStop();
         }
+        if ((unsigned long)((millis() - tank->running_since) / 1000) >= tank->run_till) {
+          forceStop();
+          if (tank->level <= _state.stop) {
+            tank->ground_reserve = false;
+          } else {
+            tank->fault_relay = true;
+          }
+        }
+      } else if (tank->level <= _state.start) {
+        forceStart();
+        return;
       }
     }
     _last_millis = currentMillis;

@@ -7,7 +7,7 @@
 
 #define SERIAL_BAUD_RATE 115200
 #define SERIAL2_BAUD_RATE 9600
-#define WINDOW_SIZE 10
+#define WINDOW_SIZE 30
 #define START_READ (int)220
 #define TANK_HEIGHT (int)1300
 
@@ -36,10 +36,13 @@ int getDistance();
 // Read sensor---------------------------------
 void readSensor();
 uint16_t READINGS[WINDOW_SIZE];
-unsigned long timming[WINDOW_SIZE];
 uint8_t idx;
 int water_sum = 0;
-unsigned long prv_millis_sensor = millis();
+unsigned long prv_millis_sensor = 0;
+uint16_t SPEED_LEVEL[60];
+unsigned long SPEED_TIME[60];
+uint8_t s_i = 0;
+unsigned long prv_millis_speed = 0;
 //--------------------------------------------
 
 void setup() {
@@ -99,8 +102,18 @@ void readSensor() {
       READINGS[idx] = reading;
       water_sum += READINGS[idx];
       idx = (idx + 1) % WINDOW_SIZE;
-
       tank.level = (uint16_t)(water_sum / WINDOW_SIZE);
+
+      if ((unsigned long)(millis() - prv_millis_speed) >= 10000) {
+        prv_millis_speed = millis();
+        if (tank.level - tank.prv_level >= 0) {
+          tank.speed = (tank.level - tank.prv_level) * 6;
+        } else {
+          tank.speed = 0;
+        }
+        tank.prv_level = tank.level;
+      }
+
       if (tank.fault_sensor) {
         tank.fault_sensor = false;
       }
@@ -114,7 +127,7 @@ void readSensor() {
       tank.fault_wire = false;
     }
     prv_millis_sensor = millis();
-  } else if (millis() - prv_millis_sensor >= 1000 && !tank.fault_wire) {
+  } else if ((unsigned long)(millis() - prv_millis_sensor) >= 1000 && !tank.fault_wire) {
     tank.level = 3000;
     tank.fault_wire = true;
   }

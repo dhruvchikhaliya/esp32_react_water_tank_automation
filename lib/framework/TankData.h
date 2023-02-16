@@ -15,6 +15,7 @@ class TANK_DETAILS {
   bool auto_start;
   bool ground_reserve;
   bool automatic;
+  unsigned long run_till;
   unsigned long running_since;
 
  public:
@@ -30,6 +31,7 @@ class TANK_DETAILS {
                bool auto_start = true,
                bool ground_reserve = true,
                bool automatic = true,
+               unsigned long run_till = 0,
                unsigned long running_since = 0) :
       start_p(start_p),
       stop_p(stop_p),
@@ -43,6 +45,7 @@ class TANK_DETAILS {
       auto_start(auto_start),
       ground_reserve(ground_reserve),
       automatic(automatic),
+      run_till(run_till),
       running_since(running_since) {
   }
 };
