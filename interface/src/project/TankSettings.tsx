@@ -1,6 +1,6 @@
-import { Accordion, AccordionSummary, Typography, Fab, Slider, Button } from '@mui/material';
+import { Accordion, AccordionSummary, Typography } from '@mui/material';
 import { FC } from 'react';
-import { SectionContent, ValidatedTextField } from '../components';
+import { SectionContent } from '../components';
 import PumpTimingSettings from './PumpTimingSettings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React from 'react';

@@ -16,7 +16,7 @@
 #endif
 
 #ifndef FACTORY_WIFI_HOSTNAME
-#define FACTORY_WIFI_HOSTNAME "#{platform}-#{unique_id}"
+#define FACTORY_WIFI_HOSTNAME "Water_Tank"
 #endif
 
 #define WIFI_SETTINGS_FILE "/config/wifiSettings.json"
@@ -57,7 +57,7 @@ class WiFiSettings {
   static StateUpdateResult update(JsonObject& root, WiFiSettings& settings) {
     settings.ssid = root["ssid"] | FACTORY_WIFI_SSID;
     settings.password = root["password"] | FACTORY_WIFI_PASSWORD;
-    settings.hostname = root["hostname"] | SettingValue::format(FACTORY_WIFI_HOSTNAME);
+    settings.hostname = root["hostname"] | FACTORY_WIFI_HOSTNAME;
     settings.staticIPConfig = root["static_ip_config"] | false;
 
     // extended settings

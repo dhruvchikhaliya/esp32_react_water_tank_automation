@@ -14,11 +14,11 @@
 #endif
 
 #ifndef FACTORY_AP_SSID
-#define FACTORY_AP_SSID "ESP8266-React-#{unique_id}"
+#define FACTORY_AP_SSID "Water Tank"
 #endif
 
 #ifndef FACTORY_AP_PASSWORD
-#define FACTORY_AP_PASSWORD "esp-react"
+#define FACTORY_AP_PASSWORD NULL
 #endif
 
 #ifndef FACTORY_AP_LOCAL_IP
@@ -99,7 +99,7 @@ class APSettings {
       default:
         newSettings.provisionMode = AP_MODE_ALWAYS;
     }
-    newSettings.ssid = root["ssid"] | SettingValue::format(FACTORY_AP_SSID);
+    newSettings.ssid = root["ssid"] | FACTORY_AP_SSID;
     newSettings.password = root["password"] | FACTORY_AP_PASSWORD;
     newSettings.channel = root["channel"] | FACTORY_AP_CHANNEL;
     newSettings.ssidHidden = root["ssid_hidden"] | FACTORY_AP_SSID_HIDDEN;

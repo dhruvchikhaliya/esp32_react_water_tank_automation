@@ -1,18 +1,13 @@
-import { FC, useEffect, useContext } from 'react';
-import React from 'react';
-import { Typography, Box, List, ListItem, ListItemText, Card, CardContent, duration, Grid, LinearProgress, Stack, Button, Switch, Checkbox, ListItemAvatar, Avatar, Divider, Theme, useTheme, CardActions, FormControlLabel, ListItemButton, ListItemIcon } from '@mui/material';
+import { FC, useContext } from 'react';
+import { Typography, List, ListItem, ListItemText, Card, CardContent,ListItemAvatar, Avatar, Divider, Theme, useTheme, CardActions, ListItemButton } from '@mui/material';
 
-import { BlockFormControlLabel, FormLoader, SectionContent } from '../components';
+import { FormLoader, SectionContent } from '../components';
 import { Arced } from '../gauge/arced';
 import { Power } from '../gauge/power';
 import { WEB_SOCKET_ROOT } from '../api/endpoints';
 import { TankStatusDetails } from './types';
 import { updateValue, useWs } from '../utils';
-import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
-import StopIcon from '@mui/icons-material/Stop';
 import { useSnackbar } from 'notistack';
-import { Console } from 'console';
-import { dark } from '@mui/material/styles/createPalette';
 import TimerIcon from '@mui/icons-material/Timer';
 import CableIcon from '@mui/icons-material/Cable';
 import SensorsIcon from '@mui/icons-material/Sensors';
@@ -27,17 +22,16 @@ import { AuthenticatedContext } from '../contexts/authentication';
 
 export const LIGHT_SETTINGS_WEBSOCKET_URL = WEB_SOCKET_ROOT + "tankStatus";
 
-var timeStamp = 0;
-
 const TankStatus: FC = () => {
   const { connected, updateData, data } = useWs<TankStatusDetails>(LIGHT_SETTINGS_WEBSOCKET_URL);
   const { enqueueSnackbar } = useSnackbar();
   const authenticatedContext = useContext(AuthenticatedContext);
   const theme = useTheme();
 
-  useEffect(() => {
-    updateValue(updateData);
-  }, [data]);
+  // useEffect(() => {
+  //   updateValue(updateData);
+  // }, [data]);
+
   if (!connected || !data) {
     return (<FormLoader message="Connecting to WebSocket…" />);
   }
@@ -101,15 +95,6 @@ const TankStatus: FC = () => {
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText primary="Pump" secondary={data.run ? `Running | ${secondsToString(data.running_since)}` : "Ideal"} />
-                {/* <Button
-                  size='small'
-                  variant="outlined"
-                  // startIcon={data.automatic ? <PersonOffIcon /> : <PersonIcon />}
-                  color={data.automatic ? "success" : "secondary"}
-                  onClick={changeAutoMode}>
-                  {data.automatic ? "Auto" : "Manual"}
-                </Button> */}
-
               </ListItem>
               <Divider variant="fullWidth" component="li" />
 

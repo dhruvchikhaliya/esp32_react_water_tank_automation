@@ -2,12 +2,9 @@ import { FC, useState, useContext } from "react";
 import { LedColors } from "../types";
 import { useRest } from "../utils";
 import * as PumpApi from "../api/pump";
-import { Slider, Button, Card, CardContent, Typography, Stack, Dialog, useMediaQuery, DialogActions, DialogTitle } from "@mui/material";
+import { Button, Card, CardContent, Typography, Dialog, useMediaQuery, DialogActions, DialogTitle } from "@mui/material";
 import { FormLoader } from "../components";
 import SaveIcon from '@mui/icons-material/Save';
-import { set } from "lodash";
-import Chrome from "react-color/lib/components/chrome/Chrome";
-import { bgcolor, height } from "@mui/system";
 import ChromePicker from "react-color/lib/components/chrome/Chrome";
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
@@ -55,19 +52,6 @@ const LedColorSetting: FC = () => {
         await saveData();
     };
 
-    const style = {
-        default: {
-            body: {
-                bgcolor: "#0000"
-            },
-            picker: {
-                width: 500
-            },
-            swatch: {
-                width: 122
-            }
-        }
-    };
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-5">
@@ -109,7 +93,14 @@ const LedColorSetting: FC = () => {
                 <DialogTitle>Pick a color</DialogTitle>
                 <ChromePicker
                     disableAlpha={true}
-                    styles={style}
+                    styles={{
+                        default: {
+                            picker: {
+                                boxShadow: 'none',
+                                width: 500
+                            },
+                        }
+                    }}
                     color={clr}
                     onChange={(color) => { setClr(color.hex); }}
                 />

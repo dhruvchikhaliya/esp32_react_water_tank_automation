@@ -14,7 +14,7 @@
 #include <WiFiUdp.h>
 
 #ifndef FACTORY_OTA_PORT
-#define FACTORY_OTA_PORT 8266
+#define FACTORY_OTA_PORT 3232
 #endif
 
 #ifndef FACTORY_OTA_PASSWORD
