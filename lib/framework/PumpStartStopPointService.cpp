@@ -42,7 +42,10 @@ void PumpStartStopPointService::stop() {
 void PumpStartStopPointService::forceStart() {
   digitalWrite(RELAY_PIN, HIGH);
   tank->running_since = millis();
-  tank->run_till = tank->level * FULL_TANK_TIME / 2000;
+  tank->run_till = FULL_TANK_TIME * (1 - tank->level / 2000);
+  if (tank->run_till <= 120) {
+    tank->run_till += 120;
+  }
   tank->pump_running = true;
 }
 
@@ -67,16 +70,17 @@ void PumpStartStopPointService::loop() {
         if (tank->level >= _state.stop) {
           forceStop();
         }
-        if ((unsigned long)((millis() - tank->running_since) / 1000) >= tank->run_till) {
+        if ((unsigned long)((currentMillis - tank->running_since) / 1000) >= tank->run_till) {
           forceStop();
           if (tank->level <= _state.stop) {
             tank->ground_reserve = false;
+            tank->fault_relay = true;
           } else {
             tank->fault_relay = true;
           }
         }
       } else if (tank->level <= _state.start) {
-        forceStart();
+        start();
         return;
       }
     }

@@ -15,6 +15,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
 
 import * as SystemApi from "../../api/system";
 import { EspPlatform, SystemStatus } from "../../types";
@@ -134,6 +135,18 @@ const SystemStatusForm: FC = () => {
             <ListItemText primary="Device (Platform / SDK)" secondary={data.esp_platform + ' / ' + data.sdk_version} />
           </ListItem>
           <Divider variant="inset" component="li" />
+          {(data.esp_platform == EspPlatform.ESP32) && (
+            <>
+              <ListItem >
+                <ListItemAvatar>
+                  <Avatar>
+                    <DeviceThermostatIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Temprature" secondary={data.temprature + ' °C'} />
+              </ListItem>
+              <Divider variant="inset" component="li" /></>
+          )}
           <ListItem >
             <ListItemAvatar>
               <Avatar>

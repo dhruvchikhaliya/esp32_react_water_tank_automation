@@ -16,7 +16,7 @@
 #define PUMP_STOP_POINT 1900
 #endif
 
-#define FULL_TANK_TIME 90000  // In Seconds
+#define FULL_TANK_TIME 1500  // In Seconds
 #define RELAY_PIN 12
 #define RUN_DELAY_SS 1000
 #define START_STOP_SETTINGS_FILE "/config/startStopPoint.json"

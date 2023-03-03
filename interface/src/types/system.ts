@@ -21,6 +21,7 @@ export interface ESP32SystemStatus extends ESPSystemStatus {
   esp_platform: EspPlatform.ESP32;
   psram_size: number;
   free_psram: number;
+  temprature: number;
 }
 
 export interface ESP8266SystemStatus extends ESPSystemStatus {

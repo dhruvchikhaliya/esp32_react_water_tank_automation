@@ -9,6 +9,10 @@
 #include <ESPAsyncTCP.h>
 #endif
 
+extern "C" {
+  uint8_t temprature_sens_read();
+}
+
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
@@ -17,6 +21,7 @@
 
 #define MAX_ESP_STATUS_SIZE 1024
 #define SYSTEM_STATUS_SERVICE_PATH "/rest/systemStatus"
+
 
 class SystemStatus {
  public:

@@ -1,5 +1,6 @@
 #include <SystemStatus.h>
 
+
 SystemStatus::SystemStatus(AsyncWebServer* server, SecurityManager* securityManager) {
   server->on(SYSTEM_STATUS_SERVICE_PATH,
              HTTP_GET,
@@ -14,7 +15,7 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
   root["esp_platform"] = "esp32";
   root["max_alloc_heap"] = ESP.getMaxAllocHeap();
   root["psram_size"] = ESP.getPsramSize();
-  root["free_psram"] = ESP.getFreePsram();  
+  root["free_psram"] = ESP.getFreePsram();
 #elif defined(ESP8266)
   root["esp_platform"] = "esp8266";
   root["max_alloc_heap"] = ESP.getMaxFreeBlockSize();
@@ -33,6 +34,7 @@ void SystemStatus::systemStatus(AsyncWebServerRequest* request) {
 #ifdef ESP32
   root["fs_total"] = ESPFS.totalBytes();
   root["fs_used"] = ESPFS.usedBytes();
+  root["temprature"] = (temprature_sens_read() - 32) / 1.8;
 #elif defined(ESP8266)
   FSInfo fs_info;
   ESPFS.info(fs_info);

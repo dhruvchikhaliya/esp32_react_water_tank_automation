@@ -44,7 +44,7 @@ export const ToggleSwitch = styled(Switch)(() => ({
 }));
 
 const PumpTimingSettings: FC = () => {
-  const isMobile = useMediaQuery('(min-width:600px)');
+  const isDesktop = useMediaQuery('(min-width:600px)');
   const [timepopup, setTimepopup] = useState<boolean>(false);
   const { enqueueSnackbar } = useSnackbar();
   const authenticatedContext = useContext(AuthenticatedContext);
@@ -83,7 +83,7 @@ const PumpTimingSettings: FC = () => {
           onClose={closeTimerSetBox}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <StaticTimePicker
-              orientation={isMobile ? "landscape" : "portrait"}
+              orientation={isDesktop ? "landscape" : "portrait"}
               ampm
               openTo="hours"
               value={value}
@@ -161,6 +161,7 @@ const PumpTimingSettings: FC = () => {
           <Stack direction="row" spacing={1} sx={{ mt: 1 }} justifyContent="center">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((val, bit) => {
               return <ToggleButton
+                size={isDesktop ? "medium" : "small"}
                 color="primary"
                 value="check"
                 onChange={() => toggleBit(i, bit)}
@@ -183,7 +184,7 @@ const PumpTimingSettings: FC = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3">
+      <div className="flex flex-wrap items-center justify-center w-full h-full">
         {data.timing.map((obj, i) =>
           (<TimerCard i={i} />)
         )}
