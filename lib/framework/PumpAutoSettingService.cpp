@@ -36,7 +36,7 @@ void PumpAutoSettingService::loop() {
     tank->auto_start = true;
     uint8_t i = 1;
     for (TimeDetails timing : _state.timings) {
-      if (!tank->pump_running && (timing.weekAndState & (1 << 7)) && (timing.weekAndState & (0xff >> t->tm_wday)) &&
+      if (!tank->pump_running && (timing.weekAndState & (1 << 7)) && (timing.weekAndState & (0x40 >> t->tm_wday)) &&
           timing.hour == t->tm_hour && timing.minute == t->tm_min) {
         _pumpSsService->start();
         marked[i] = t->tm_wday;
